@@ -1,10 +1,10 @@
 import { useContext, useState } from 'react';
-import { UserContext } from './Context';
-import FriendList from '../component/AddExpense/FriendList';
+import FriendList from './FriendList';
+import { UserContext } from '../../controller/Context';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-export default function AddExpense() {
+export default function AddNewExpense({ type }) {
   const userData = useContext(UserContext);
   const [error, setError] = useState('');
   const [timeoutIds, setTimeoutIds] = useState([]);
@@ -15,14 +15,14 @@ export default function AddExpense() {
 
   const [expenseData, setExpenseData] = useState({
     expenseDate: '',
-    expenseType: 'self',
+    expenseType: 'lended',
     expenseAmount: '',
     expenseCategory: 'food',
     expenseDescription: '',
   });
 
   const currentDate = new Date().toLocaleDateString('en-CA');
-  console.log(currentDate, 'current date');
+
   const findFriendsWithEmail = async (emailEntered) => {
     try {
       const response = await fetch(
@@ -60,9 +60,9 @@ export default function AddExpense() {
     if (!expenseData.expenseAmount || isNaN(Number(expenseData.expenseAmount)))
       return setError('Please enter an amount to add expense');
 
-    if (expenseData.expenseType !== 'self' && !selectedFriend)
+    if (type !== 'self' && !selectedFriend)
       return setError('Please select a friend to add expense');
-    console.log(expenseData, 'expensedata...');
+
     try {
       const response = await fetch(`${backendUrl}/add-expense`, {
         method: 'POST',
@@ -70,8 +70,8 @@ export default function AddExpense() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          expenseType: expenseData.expenseType,
-          expenseAmount: expenseData.expenseAmount,
+          expenseType: type === 'self' ? 'self' : expenseData.expenseType,
+          expenseAmount: Number(expenseData.expenseAmount),
           expenseDescription: expenseData.expenseDescription,
           expenseCategory: expenseData.expenseCategory,
           expenseDate: expenseData.expenseDate || new Date(),
@@ -79,6 +79,8 @@ export default function AddExpense() {
           currentUser: userData.userId,
         }),
       });
+      if (response.status !== 200)
+        throw new Error('Error while adding expense');
     } catch (error) {
       console.log(error, 'error');
     }
@@ -94,28 +96,30 @@ export default function AddExpense() {
   console.log(expenseData, 'firneds data');
   return (
     <>
-      {selectedFriend ? (
-        <div>
-          <div>{selectedFriend.user_id}</div>
-          <div>{selectedFriend.name}</div>
-          <div>{selectedFriend.email}</div>
-        </div>
-      ) : (
-        <>
-          <label htmlFor='search-friend'>Search for a friend</label>
-          <input
-            id='search-friend'
-            value={email}
-            onChange={handleDebounce}
-            onFocus={handleDebounce}
-          />
-          <FriendList
-            friendList={friendsData}
-            selectedFriend={selectedFriend}
-            setSelectedFriend={setSelectedFriend}
-          />
-        </>
-      )}
+      {type === 'friends' &&
+        (selectedFriend ? (
+          <div>
+            <div>{selectedFriend.user_id}</div>
+            <div>{selectedFriend.name}</div>
+            <div>{selectedFriend.email}</div>
+          </div>
+        ) : (
+          <>
+            <label htmlFor='search-friend'>Search for a friend</label>
+            <input
+              id='search-friend'
+              value={email}
+              onChange={handleDebounce}
+              onFocus={handleDebounce}
+            />
+            <FriendList
+              friendList={friendsData}
+              selectedFriend={selectedFriend}
+              setSelectedFriend={setSelectedFriend}
+            />
+          </>
+        ))}
+
       <div>
         <label htmlFor='expense-amount'>Amount</label>
         <input
@@ -135,16 +139,22 @@ export default function AddExpense() {
           }
         />
 
-        <label htmlFor='expense-type'>Expense Type</label>
-        <select
-          id='expense-type'
-          value={expenseData.expenseType}
-          onChange={(event) => handleExpenseDataChange(event, 'expenseType')}
-        >
-          <option value='lended'>Lended</option>
-          <option value='borrowed'>Borrowed</option>
-          <option value='self'>Self</option>
-        </select>
+        {type === 'friends' && (
+          <>
+            <label htmlFor='expense-type'>Expense Type</label>
+
+            <select
+              id='expense-type'
+              value={expenseData.expenseType}
+              onChange={(event) =>
+                handleExpenseDataChange(event, 'expenseType')
+              }
+            >
+              <option value='lended'>Lended</option>
+              <option value='borrowed'>Borrowed</option>
+            </select>
+          </>
+        )}
 
         <label htmlFor='expense-category'>Expense Category</label>
         <select

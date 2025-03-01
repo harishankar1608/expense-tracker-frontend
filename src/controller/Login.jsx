@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { emailValidation } from '../utils/validation';
+import { useNavigate } from 'react-router-dom';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export default function Login() {
+  const router = useNavigate();
   const [loginData, setLoginData] = useState({
     email: '',
     password: '',
@@ -35,8 +37,10 @@ export default function Login() {
         }),
         credentials: 'include',
       });
+
       if (response.status !== 200)
         throw new Error('Error while logging in! please try again');
+      router('/expenses');
     } catch (error) {
       console.log(error, 'Error message');
       window.alert(error.message);
@@ -44,10 +48,36 @@ export default function Login() {
   };
   return (
     <>
-      <div>This is Login Page</div>
-      <input type='text' name='email' onChange={formChangeHandler} />
-      <input type='text' name='password' onChange={formChangeHandler} />
-      <button onClick={loginSubmitHandler}>Submit</button>
+      <div className='login-container'>
+        <div className='login-layout-logo'>
+          <div className='login-logo-container'>
+            <img className='login-logo' src='dollar-logo.svg' />
+          </div>
+        </div>
+        <div className='login-layout-input login-input-container'>
+          <div className='login-label-input-container'>
+            <label className='login-input-label'>Email</label>
+            <input
+              className='login-input'
+              type='text'
+              name='email'
+              onChange={formChangeHandler}
+            />
+          </div>
+          <div className='login-label-input-container'>
+            <label className='login-input-label'>Password</label>
+            <input
+              className='login-input'
+              type='text'
+              name='password'
+              onChange={formChangeHandler}
+            />
+          </div>
+          <button className='login-button' onClick={loginSubmitHandler}>
+            Submit
+          </button>
+        </div>
+      </div>
     </>
   );
 }

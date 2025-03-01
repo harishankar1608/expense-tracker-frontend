@@ -6,7 +6,7 @@ const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export default function ProtectedRoute({ component }) {
   const [userId, setUserId] = useState('');
-  const [userName, setUserName] = useState('');
+  const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -22,7 +22,7 @@ export default function ProtectedRoute({ component }) {
         throw new Error('Error while autheticating user please login again!');
 
       const { user_id, name } = await response.json();
-      setUserName(name);
+      setUsername(name);
       console.log(user_id, 'userId');
       if (!user_id) navigate('/login');
 
@@ -41,8 +41,8 @@ export default function ProtectedRoute({ component }) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ userId }}>
-      <div style={{ color: '#00008B', fontSize: '32px' }}>{userName}</div>
+    <UserContext.Provider value={{ userId, username }}>
+      {/* <div style={{ color: '#00008B', fontSize: '32px' }}>{username}</div> */}
       {!loading && userId && component}
     </UserContext.Provider>
   );

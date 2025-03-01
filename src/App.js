@@ -7,11 +7,11 @@ import OpenRoute from './controller/authenticator/OpenRoute';
 import Dashboard from './controller/Dashboard';
 import FindFriends from './controller/FindFriends';
 import Request from './controller/Request';
-import AddExpense from './controller/AddExpense';
 import ExpenseList from './controller/ExpenseList';
+import AddNewExpense from './component/AddExpense/AddNewExpense';
 
 const routes = createBrowserRouter([
-  { path: '/', element: <ProtectedRoute component={<Dashboard />} /> },
+  { path: '/dashboard', element: <ProtectedRoute component={<Dashboard />} /> },
   {
     path: '/find-friends',
     element: <ProtectedRoute component={<FindFriends />} />,
@@ -21,14 +21,17 @@ const routes = createBrowserRouter([
     element: <ProtectedRoute component={<ExpenseList />} />,
   },
   {
-    path: '/add-expenses',
-    element: <ProtectedRoute component={<AddExpense />} />,
+    path: '/add-friend-expenses',
+    element: <ProtectedRoute component={<AddNewExpense />} />,
+  },
+  {
+    path: '/add-self-expenses',
+    element: <ProtectedRoute component={<AddNewExpense />} />,
   },
   {
     path: '/requests',
     element: <ProtectedRoute component={<Request />} />,
   },
-
   {
     path: '/login',
     element: <OpenRoute component={<Login />} />,
@@ -39,7 +42,11 @@ const routes = createBrowserRouter([
   },
 ]);
 function App() {
-  return <RouterProvider router={routes} />;
+  return (
+    <div className='container'>
+      <RouterProvider router={routes} />
+    </div>
+  );
 }
 
 export default App;
