@@ -11,7 +11,7 @@ import ExpenseList from './controller/ExpenseList';
 import AddNewExpense from './component/AddExpense/AddNewExpense';
 
 const routes = createBrowserRouter([
-  { path: '/dashboard', element: <ProtectedRoute component={<Dashboard />} /> },
+  { path: '/', element: <ProtectedRoute component={<Dashboard />} /> },
   {
     path: '/find-friends',
     element: <ProtectedRoute component={<FindFriends />} />,
@@ -22,11 +22,11 @@ const routes = createBrowserRouter([
   },
   {
     path: '/add-friend-expenses',
-    element: <ProtectedRoute component={<AddNewExpense />} />,
+    element: <ProtectedRoute component={<AddNewExpense type='friends' />} />,
   },
   {
     path: '/add-self-expenses',
-    element: <ProtectedRoute component={<AddNewExpense />} />,
+    element: <ProtectedRoute component={<AddNewExpense type='self' />} />,
   },
   {
     path: '/requests',

@@ -91,31 +91,52 @@ export default function ExpenseList() {
 
   return (
     <div className='expense-list-container'>
-      <div className='expense-list-header'>Total Expenses {totalAmount}</div>
-      <br />
+      <div className='expense-list-header'>
+        <span className='font-bold'>Total Friends Expenses</span>
+        <span
+          className={`${totalAmount > 0 ? 'font-green' : 'font-red'} font-bold`}
+        >
+          {totalAmount}
+        </span>
+      </div>
+
       {totalFriendExpense &&
         (Object.keys(totalFriendExpense).length > 0 ? (
           <>
-            <div>Friends Expenses</div>
-            {Object.keys(totalFriendExpense).map((userId) => (
-              <div key={userId}>
-                <>
-                  <div>
-                    <span>{friendsData?.[userId]?.name || ''}</span>
-                  </div>
-                  <div>
-                    <span>Expense</span>{' '}
-                    <span>{totalFriendExpense[userId]}</span>
-                  </div>
-                  <br />
-                </>
+            {Object.keys(totalFriendExpense).map((userId, index) => (
+              <div className='expense-list-card' key={userId}>
+                <div className='expense-list-card-serial'>{index + 1}</div>
+                <div className='expense-list-card-name'>
+                  <span className='text-left'>
+                    {friendsData?.[userId]?.name || ''}
+                  </span>
+                </div>
+                {/* <div className='expense-list-card-cell'>
+                  <span>{friendsData?.[userId]?.email || ''}</span>
+                </div> */}
+                <div className='expense-list-card-amount'>
+                  <span
+                    className={`${
+                      totalFriendExpense[userId] > 0 ? 'font-green' : 'font-red'
+                    } font-bold`}
+                  >
+                    {totalFriendExpense[userId]}
+                  </span>
+                </div>
+                <div className='expense-list-card-continue'>
+                  <img
+                    className='expense-list-right-arrow'
+                    src='/right-arrow-svgrepo-com.svg'
+                    alt='Right arrow'
+                  />
+                </div>
               </div>
             ))}
           </>
         ) : (
           <div>No Friend Expenses found</div>
         ))}
-      {totalSelfExpense !== null && (
+      {/* {totalSelfExpense !== null && (
         <>
           <div>Self Expense</div>
           <div>
@@ -126,7 +147,7 @@ export default function ExpenseList() {
           </div>
           <br />
         </>
-      )}
+      )} */}
     </div>
   );
 }

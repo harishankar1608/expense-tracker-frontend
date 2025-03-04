@@ -1,19 +1,19 @@
-@font-face {
+/* @font-face {
   font-family: farro-light;
   src: url(../public/fonts/Farro-Light.ttf);
-}
+} */
 @font-face {
   font-family: farro-regular;
   src: url(../public/fonts/Farro-Regular.ttf);
 }
-@font-face {
+/* @font-face {
   font-family: farro-medium;
   src: url(../public/fonts/Farro-Medium.ttf);
 }
 @font-face {
   font-family: farro-bold;
   src: url(../public/fonts/Farro-Bold.ttf);
-}
+} */
 
 * {
   box-sizing: border-box;
@@ -30,6 +30,27 @@ body {
   height: 100%;
   width: 100%;
 } */
+
+/*Start of Fonts*/
+.font-bold {
+  font-weight: 900;
+}
+/*End of Fonts*/
+
+/* Start of Font Colors*/
+.font-red {
+  color: #ff3333;
+}
+.font-green {
+  color: #009e60;
+}
+/* End of Font Colors*/
+
+/*Start of Text Align*/
+.text-left {
+  text-align: left;
+}
+/*End of Text Align*/
 
 .gray-background {
   background-color: #f0f8ff;
@@ -152,21 +173,81 @@ body {
 /* End of login */
 
 /* Start of Navigation Bar*/
+.nav-bar-container {
+  background-color: #5680e9;
+}
+
+.nav-welcome-user {
+  padding: 20px 0px 50px 20px;
+  font-weight: 900;
+  font-size: 32px;
+  border-bottom: 4px solid #ffffff;
+}
+
 .nav-bar-icon-container {
-  position: absolute;
-  bottom: 0;
+  position: unset;
+  left: 0;
+  top: 0;
+  margin-top: 20px;
   display: flex;
-  width: 100%;
-  justify-content: center;
-  gap: 24px;
-  padding: 12px 0px;
+  flex-direction: column;
+  width: 250px;
+  height: 100%;
   background-color: #5680e9;
   overflow-y: auto;
+  font-size: 16px;
+  font-family: ferro-medium;
 }
 
 .nav-bar-icon {
   height: 48px;
   width: 48px;
+}
+
+.nav-icon-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 16px;
+}
+
+.nav-bar-selected {
+  background-color: #c1c8e4;
+}
+
+@media (max-width: 400px) {
+  .nav-bar-icon-container {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: auto;
+    justify-content: center;
+    gap: unset;
+    background-color: #5680e9;
+    overflow-y: auto;
+    top: auto;
+    left: auto;
+    font-size: 12px;
+  }
+
+  .nav-icon-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0px;
+  }
+  .nav-bar-icon {
+    height: 36px;
+    width: 36px;
+  }
+
+  .nav-welcome-user {
+    display: none;
+  }
 }
 /* End of Navigation Bar*/
 
@@ -174,14 +255,84 @@ body {
 .dashboard-container {
   width: 100%;
   height: 100vh;
+  display: flex;
+  /* flex-direction: row-reverse; */
+}
+
+@media (max-width: 400px) {
+  .dashboard-container {
+    width: 100%;
+    height: 100vh;
+    display: block;
+  }
 }
 /* End of Dashboard*/
 
 /* Start of Expense List*/
 .expense-list-container {
-  padding: 24px;
+  padding: 32px 64px;
+  width: 100%;
+  font-size: 16px;
 }
+
 .expense-list-header {
-  font-family: farro-bold;
+  display: flex;
+  gap: 32px;
+  font-size: 32px;
+  margin-bottom: 32px;
+}
+
+.expense-list-header-mobile {
+  display: none;
+}
+
+.expense-list-card {
+  width: 100%;
+  background-color: #c1c8e4;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.expense-list-card-serial {
+  width: 10%;
+}
+
+.expense-list-card-name {
+  width: 50%;
+}
+
+.expense-list-card-amount {
+  width: 30%;
+  text-align: right;
+}
+.expense-list-card-continue {
+  width: 10%;
+  text-align: right;
+}
+.expense-list-right-arrow {
+  height: 24px;
+  width: 24px;
+}
+
+@media (max-width: 400px) {
+  .expense-list-container {
+    padding: 32px 16px;
+    font-size: 12px;
+  }
+  .expense-list-header {
+    font-size: 20px;
+    gap: unset;
+    justify-content: space-between;
+  }
+  .expense-list-header-mobile {
+    display: block;
+    padding: 32px 16px 0px 16px;
+    font-size: 24px;
+    font-weight: 900;
+  }
 }
 /* End of Expense List*/
