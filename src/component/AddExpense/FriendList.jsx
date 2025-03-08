@@ -6,12 +6,15 @@ export default function FriendList(props) {
   };
 
   return (
-    <div className='absolute name-suggestion'>
-      {friendList.map((friend) => (
-        <div key={friend.user_id}>
-          <div>{friend.name}</div>
+    <div className='friend-list-container'>
+      {friendList.map((friend, index) => (
+        <div
+          onClick={() => selectFriend(friend)}
+          className={`friend-list-name-container`}
+          key={friend.user_id}
+        >
+          <span>{friend.name}</span>
           <div>{friend.email}</div>
-          <button onClick={() => selectFriend(friend)}>Select</button>
         </div>
       ))}
     </div>

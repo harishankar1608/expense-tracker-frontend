@@ -1,19 +1,7 @@
-/* @font-face {
-  font-family: farro-light;
-  src: url(../public/fonts/Farro-Light.ttf);
-} */
 @font-face {
   font-family: farro-regular;
   src: url(../public/fonts/Farro-Regular.ttf);
 }
-/* @font-face {
-  font-family: farro-medium;
-  src: url(../public/fonts/Farro-Medium.ttf);
-}
-@font-face {
-  font-family: farro-bold;
-  src: url(../public/fonts/Farro-Bold.ttf);
-} */
 
 * {
   box-sizing: border-box;
@@ -25,11 +13,6 @@ body {
   margin: 0 auto;
   height: 100%;
 }
-/* .container {
-  margin: 0 auto;
-  height: 100%;
-  width: 100%;
-} */
 
 /*Start of Fonts*/
 .font-bold {
@@ -66,10 +49,6 @@ body {
   height: 100vh;
   background-color: #f0f8ff;
 }
-
-/* .login-layout {
-  flex-basis: 50%;
-} */
 
 .login-input-container {
   display: flex;
@@ -124,7 +103,7 @@ body {
   text-align: left;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 720px) {
   .login-container {
     display: flex;
     flex-direction: column;
@@ -165,10 +144,6 @@ body {
   .login-input {
     outline: none;
   }
-  /* .login-layout{
-    display: flex;
-    align-items: center;
-  } */
 }
 /* End of login */
 
@@ -192,7 +167,6 @@ body {
   display: flex;
   flex-direction: column;
   width: 250px;
-  height: 100%;
   background-color: #5680e9;
   overflow-y: auto;
   font-size: 16px;
@@ -216,7 +190,7 @@ body {
   background-color: #c1c8e4;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 720px) {
   .nav-bar-icon-container {
     position: absolute;
     bottom: 0;
@@ -256,10 +230,9 @@ body {
   width: 100%;
   height: 100vh;
   display: flex;
-  /* flex-direction: row-reverse; */
 }
 
-@media (max-width: 400px) {
+@media (max-width: 720px) {
   .dashboard-container {
     width: 100%;
     height: 100vh;
@@ -318,7 +291,7 @@ body {
   width: 24px;
 }
 
-@media (max-width: 400px) {
+@media (max-width: 720px) {
   .expense-list-container {
     padding: 32px 16px;
     font-size: 12px;
@@ -336,3 +309,188 @@ body {
   }
 }
 /* End of Expense List*/
+
+/* Start of Add Expenses*/
+.add-expenses-container {
+  padding: 100px 64px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.add-expenses-default-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-expenses-type-category,
+.add-expense-description,
+.add-expense-category-date,
+.add-expense-search-friend-amount {
+  display: flex;
+  margin-top: 24px;
+  gap: 32px;
+}
+
+.add-expense-category-block {
+  position: relative;
+}
+
+.add-expense-amount-block,
+.add-expense-type-block,
+.add-expense-category-block,
+.add-expense-date-block,
+.add-expense-search-friend,
+.add-expense-description-block {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  gap: 16px;
+}
+
+/* .add-expense-description-block{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 16px;
+} */
+
+.add-expense-input-container {
+  position: relative;
+}
+
+.add-expense-amount-input,
+.add-expense-type-input,
+.add-expense-description-input,
+.add-expense-category-input,
+.add-expense-date-input,
+.add-expense-search-friend-input {
+  height: 32px;
+  border: none;
+  border-radius: 5px;
+  padding: 0px 10px;
+  box-shadow: -1px 1px 10px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.add-expense-description-input {
+  resize: none;
+}
+
+.add-expense-submit-block {
+  margin-top: 32px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.add-expense-submit-button {
+  border: none;
+  background-color: #5680e9;
+  max-width: 345px;
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: 5px;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.add-expense-selected-friend-view {
+  background-color: #c1c8e4;
+  border-radius: 5px;
+  display: flex;
+  padding: 8px 20px;
+  box-shadow: -1px 1px 10px 5px rgba(0, 0, 0, 0.1);
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-expense-clear-friend {
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.add-expense-selected-friend-name {
+  display: flex;
+  gap: 24px;
+}
+
+@media (max-width: 720px) {
+  .add-expenses-container {
+    padding: 16px 16px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .add-expenses-type-category,
+  .add-expense-description,
+  .add-expense-category-date,
+  .add-expense-search-friend-amount {
+    flex-direction: column;
+  }
+
+  .add-expense-amount-block,
+  .add-expense-type-block,
+  .add-expense-category-block,
+  .add-expense-date-block,
+  .add-expense-search-friend,
+  .add-expense-description-block {
+    width: 100%;
+  }
+
+  .add-expense-description-input {
+    height: 64px;
+    padding: 8px 4px 8px 4px;
+  }
+}
+/* End of Add Expenses*/
+
+/* Start of Expense Name Suggestion*/
+.friend-list-container {
+  position: absolute;
+  top: 80;
+  background-color: #c1c8e4;
+  width: 100%;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  z-index: 2;
+}
+
+.friend-list-name-container {
+  display: flex;
+  justify-content: space-between;
+  height: 32px;
+  padding: 0px 28px;
+  align-items: center;
+}
+.friend-list-name-container:hover {
+  background-color: #5680e9;
+  cursor: pointer;
+}
+
+/* End of Expense Name Suggestion*/
+
+/* Start of Dropdown */
+.dropdown-container {
+  position: absolute;
+  background-color: #c1c8e4;
+  width: 100%;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+  z-index: 2;
+}
+
+.dropdown-list {
+  display: flex;
+  justify-content: space-between;
+  height: 32px;
+  padding: 0px 28px;
+  align-items: center;
+}
+
+.dropdown-list-selected {
+  background-color: #5680e9;
+  cursor: pointer;
+}
+/* End of Dropdown */
