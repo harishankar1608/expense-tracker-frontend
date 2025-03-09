@@ -92,28 +92,49 @@ export default function FriendRequest() {
     }
   };
 
-  console.log('requested list');
   return (
-    <>
+    <div className='friend-request-container'>
       {loading ? (
         <div>loading</div>
       ) : receivedRequest.length === 0 ? (
         <div>No request found</div>
       ) : (
-        receivedRequest.map((user) => (
-          <div key={user.user_id}>
-            <div>{user?.name || ''}</div>
-            <div>requested</div>
-            <button onClick={() => acceptFriendRequest(user.user_id)}>
-              Accept Request
-            </button>
-            <button onClick={() => rejectFriendRequest(user.user_id)}>
-              Reject request
-            </button>
-          </div>
-        ))
+        <div className='friend-request-list-container'>
+          {receivedRequest.map((user) => (
+            <div className='friend-request-list' key={user.user_id}>
+              <div className='friend-request-name-container'>
+                <div className='friend-request-email-tooltip'>
+                  <span>{user?.name || ''}</span>
+                  <div className='email-tooltip'>{user?.email || ''} </div>
+                  <div className='email-tooltip-pointer'></div>
+                </div>
+                <img
+                  className='friend-request-info-icon'
+                  src='/info-icon.svg'
+                  alt='info'
+                />
+              </div>
+              <div className='friend-request-email'>{user?.email || ''}</div>
+
+              <div className='friend-request-button-container'>
+                <button
+                  className='friend-request-button friend-request-accept-button'
+                  onClick={() => acceptFriendRequest(user.user_id)}
+                >
+                  Accept
+                </button>
+                <button
+                  className='friend-request-button friend-request-reject-button'
+                  onClick={() => rejectFriendRequest(user.user_id)}
+                >
+                  Reject
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
-    </>
+    </div>
   );
 }
 //added to whom

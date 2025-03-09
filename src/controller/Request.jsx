@@ -7,10 +7,28 @@ export default function Request() {
 
   return (
     <>
-      <div onClick={() => setCurrentTab('my_request')}>My Request</div>
-      <div onClick={() => setCurrentTab('friend_request')}>Friend Requests</div>
-      {currentTab === 'my_request' && <MyRequest />}
-      {currentTab === 'friend_request' && <FriendRequest />}
+      <div className='request-container'>
+        <div className='request-tab-switch-container'>
+          <div
+            className={`request-tab-switch ${
+              currentTab === 'friend_request' ? 'selected' : ''
+            }`}
+            onClick={() => setCurrentTab('friend_request')}
+          >
+            Friend Requests
+          </div>
+          <div
+            className={`request-tab-switch ${
+              currentTab === 'my_request' ? 'selected' : ''
+            }`}
+            onClick={() => setCurrentTab('my_request')}
+          >
+            My Requests
+          </div>
+        </div>
+        {currentTab === 'my_request' && <MyRequest />}
+        {currentTab === 'friend_request' && <FriendRequest />}
+      </div>
     </>
   );
 }

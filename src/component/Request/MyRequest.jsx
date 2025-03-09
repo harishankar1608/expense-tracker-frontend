@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../controller/Context';
+import AddFriendButton from './AddFriendButton';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -9,7 +10,6 @@ export default function MyRequest() {
   const userData = useContext(UserContext);
   const getRequestedList = async () => {
     setLoading(true);
-    console.log(userData);
     try {
       const response = await fetch(
         `${backendUrl}/requested-list?currentUser=${userData.userId}`
@@ -59,24 +59,42 @@ export default function MyRequest() {
     }
   };
 
-  console.log('requested list');
   return (
     <>
-      {loading ? (
-        <div>loading</div>
-      ) : requestedList.length === 0 ? (
-        <div>No request found</div>
-      ) : (
-        requestedList.map((user) => (
-          <div>
-            <div>{user?.name || ''}</div>
-            <div>requested</div>
-            <button onClick={() => cancelFriendRequest(user.user_id)}>
-              Cancel request
-            </button>
+      <div className='myrequest-container'>
+        {loading ? (
+          <div>loading</div>
+        ) : requestedList.length === 0 ? (
+          <div>No request found</div>
+        ) : (
+          <div className='myrequest-list-container'>
+            {requestedList.map((user, index) => (
+              <div className='myrequest-list'>
+                <div className='myrequest-name-container'>
+                  <div className='myrequest-email-tooltip'>
+                    <span>{user?.name || ''}</span>
+                    <div className='email-tooltip'>{user?.email || ''}</div>
+                    <div className='email-tooltip-pointer'></div>
+                  </div>
+                  <img
+                    className='myrequest-info-icon'
+                    src='/info-icon.svg'
+                    alt='info'
+                  />
+                </div>
+                <div className='myrequest-email'>{user?.email || ''}</div>
+                <button
+                  className='myrequest-cancel-button'
+                  onClick={() => cancelFriendRequest(user.user_id)}
+                >
+                  Cancel request
+                </button>
+              </div>
+            ))}
           </div>
-        ))
-      )}
+        )}
+        <AddFriendButton />
+      </div>
     </>
   );
 }
