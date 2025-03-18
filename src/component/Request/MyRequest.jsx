@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../controller/Context';
-import AddFriendButton from './AddFriendButton';
+import AddFriend from './AddFriend';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -8,6 +8,7 @@ export default function MyRequest() {
   const [loading, setLoading] = useState(false);
   const [requestedList, setRequestedList] = useState([]);
   const userData = useContext(UserContext);
+
   const getRequestedList = async () => {
     setLoading(true);
     try {
@@ -93,7 +94,8 @@ export default function MyRequest() {
             ))}
           </div>
         )}
-        <AddFriendButton />
+
+        <AddFriend />
       </div>
     </>
   );

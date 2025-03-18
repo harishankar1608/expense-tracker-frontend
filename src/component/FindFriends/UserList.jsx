@@ -1,14 +1,19 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { UserContext } from '../../controller/Context';
 
 export default function UserList(props) {
   const userData = useContext(UserContext);
 
-  const { friendList } = props;
+  const { friendList, setFriendList } = props;
+
+  const [loading, setLoading] = useState(false);
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const sendFriendRequest = async (friendId) => {
+    if (loading) return;
+
+    setLoading(true);
     try {
       console.log(friendId, 'friendID');
       const response = await fetch(`${backendUrl}/send-friend-request`, {
@@ -22,21 +27,39 @@ export default function UserList(props) {
         }),
       });
       if (!response.ok) throw new Error('Error while sending friend request');
+
+      //filter out the friend to whom the request was sent already
+      setFriendList((friends) =>
+        friends.filter((friend) => friend.user_id !== friendId)
+      );
     } catch (error) {
       console.log(error, 'error');
     }
+    setLoading(false);
   };
   console.log(friendList);
   return (
-    <div className='absolute name-suggestion'>
+    <div className='add-friend-name-suggestion-container'>
       {friendList.map((user) => (
-        <>
-          <div>{user.name}</div>
-          <div>{user.email}</div>
-          <button onClick={() => sendFriendRequest(user.user_id)}>
+        <div className='add-friend-name-list'>
+          <div className='add-friend-name-info-container'>
+            <div>{user.name}</div>
+            <div className='add-friend-icon-container'>
+              <img src='/info-icon.svg' className='add-friend-name-info' />
+              <div className='add-friend-email-tooltip'>
+                {user?.email || ''}
+              </div>
+              <div className='add-friend-email-tooltip-pointer'></div>
+            </div>
+          </div>
+          {/* <div>{user.email}</div> */}
+          <button
+            className='add-friend-name-list-button'
+            onClick={() => sendFriendRequest(user.user_id)}
+          >
             Send request
           </button>
-        </>
+        </div>
       ))}
     </div>
   );

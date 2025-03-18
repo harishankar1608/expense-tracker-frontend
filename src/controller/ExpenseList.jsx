@@ -17,7 +17,7 @@ export default function ExpenseList() {
   const getExpenses = async () => {
     try {
       const response = await fetch(
-        `${backendUrl}/get-all-expenses?currentUser=${userData.userId}`
+        `${backendUrl}/get-friend-expenses?currentUser=${userData.userId}`
       );
       if (!response.ok) throw new Error('Error while getting user data');
 

@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../controller/Context';
+import AddFriend from './AddFriend';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -134,6 +135,7 @@ export default function FriendRequest() {
           ))}
         </div>
       )}
+      <AddFriend />
     </div>
   );
 }

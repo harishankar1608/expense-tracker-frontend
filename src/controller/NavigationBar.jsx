@@ -34,10 +34,10 @@ export const NavigationBar = (props) => {
         >
           <img
             className='nav-bar-icon'
-            src='friend-request-icon.svg'
-            alt='request icon'
+            src='expense-list-icon.svg'
+            alt='expense list icon'
           />
-          <span>Requests</span>
+          <span>Expenses</span>
         </div>
         <div
           className={`nav-icon-content ${
@@ -47,10 +47,10 @@ export const NavigationBar = (props) => {
         >
           <img
             className='nav-bar-icon'
-            src='expense-list-icon.svg'
-            alt='expense list icon'
+            src='friend-request-icon.svg'
+            alt='request icon'
           />
-          <span>Expenses</span>
+          <span>Requests</span>
         </div>
         <div
           className={`nav-icon-content ${

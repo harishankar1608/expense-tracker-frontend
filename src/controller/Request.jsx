@@ -3,7 +3,7 @@ import MyRequest from '../component/Request/MyRequest';
 import FriendRequest from '../component/Request/FriendRequest';
 
 export default function Request() {
-  const [currentTab, setCurrentTab] = useState('my_request');
+  const [currentTab, setCurrentTab] = useState('friend_request');
 
   return (
     <>
