@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from './Context';
+import AddNewExpense from '../component/AddExpense/AddNewExpense';
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -22,14 +23,6 @@ export default function Spendings() {
       if (!response.ok) throw new Error('Error while getting user data');
 
       const data = await response.json();
-      if (!data?.friends) {
-        setInfo('No Friends found');
-      }
-
-      if (!data?.expenses) {
-        setInfo('No Expenses found');
-        return;
-      }
 
       setExpenses(data.expenses);
     } catch (error) {
@@ -68,15 +61,18 @@ export default function Spendings() {
 
   return (
     <div className='expense-list-container'>
-      <div className='expense-list-header'>
-        <span className='font-bold'>Total Spendings</span>
-        <span
-          className={`${
-            totalSelfExpense > 0 ? 'font-green' : 'font-red'
-          } font-bold`}
-        >
-          {totalSelfExpense}
-        </span>
+      <div className='expense-list-header-container'>
+        <div className='expense-list-header'>
+          <span className='font-bold'>Total Spendings</span>
+          <span
+            className={`${
+              totalSelfExpense > 0 ? 'font-green' : 'font-red'
+            } font-bold`}
+          >
+            {totalSelfExpense}
+          </span>
+        </div>
+
         <input
           type='month'
           className='expense-list-date-picker'
@@ -118,18 +114,7 @@ export default function Spendings() {
       ) : (
         <div>No Spendings found</div>
       )}
-      {/* {totalSelfExpense !== null && (
-        <>
-          <div>Self Expense</div>
-          <div>
-            <span>{userData?.username || ''}</span>
-          </div>
-          <div>
-            <span>Expense</span> <span>{totalSelfExpense}</span>
-          </div>
-          <br />
-        </>
-      )} */}
+      <AddNewExpense type='self' />
     </div>
   );
 }

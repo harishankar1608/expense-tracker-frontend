@@ -32,6 +32,8 @@ export default function AddNewExpense({ type }) {
     expenseDescription: '',
   });
 
+  const [popupOpen, setPopupOpen] = useState(false);
+
   const currentDate = new Date().toLocaleDateString('en-CA');
 
   const findFriendsWithEmail = async (emailEntered) => {
@@ -124,174 +126,207 @@ export default function AddNewExpense({ type }) {
     setSelectedFriend(null);
   };
 
+  const handlePopupOpen = () => {
+    setPopupOpen(true);
+  };
+
+  const handleClosePopup = () => {
+    setPopupOpen(false);
+  };
+
   return (
-    <div className='add-expenses-container'>
-      {type === 'friends' && (
-        <div className='add-expense-search-friend-amount'>
-          <div className='add-expense-search-friend'>
-            {selectedFriend ? (
+    <>
+      <button className='add-expense-button' onClick={handlePopupOpen}>
+        <img
+          src='/plus-icon.svg'
+          alt='add-spendings'
+          className='add-expense-button-icon'
+        />
+      </button>
+
+      {popupOpen && (
+        <div className='add-expense-overlay'>
+          <div className='add-expenses-container'>
+            <button
+              onClick={handleClosePopup}
+              className='add-expense-close-button'
+            >
+              <img className='add-expense-close-icon' src='plus-icon.svg' />
+            </button>
+            {type === 'friends' && (
               <>
-                <label>Adding For</label>
-                <div>
-                  <div className='add-expense-selected-friend-view'>
-                    <div className='add-expense-selected-friend-name'>
-                      <div>{selectedFriend.name}</div>
-                      <div>{selectedFriend.email}</div>
-                    </div>
-                    <div
-                      onClick={clearSelectedFriend}
-                      className='add-expense-clear-friend'
-                    >
-                      x
-                    </div>
+                <div className='add-expense-search-friend-amount'>
+                  <div className='add-expense-search-friend'>
+                    {selectedFriend ? (
+                      <>
+                        <label>Adding For</label>
+                        <div>
+                          <div className='add-expense-selected-friend-view'>
+                            <div className='add-expense-selected-friend-name'>
+                              <div>{selectedFriend.name}</div>
+                              <div>{selectedFriend.email}</div>
+                            </div>
+                            <div
+                              onClick={clearSelectedFriend}
+                              className='add-expense-clear-friend'
+                            >
+                              x
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <label
+                          className='add-expenses-label'
+                          htmlFor='search-friend'
+                        >
+                          Search for a friend
+                        </label>
+                        <div
+                          className='add-expense-input-container'
+                          // onBlur={() => {
+                          //   setOpenFriendsList(false);
+                          // }}
+                        >
+                          <input
+                            id='search-friend'
+                            className='add-expense-search-friend-input'
+                            value={email}
+                            onChange={handleDebounce}
+                            onFocus={handleDebounce}
+                          />
+                          {openFriendsList && friendsData.length > 0 && (
+                            <FriendList
+                              friendList={friendsData}
+                              selectedFriend={selectedFriend}
+                              setSelectedFriend={setSelectedFriend}
+                            />
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div className='add-expense-amount-block'>
+                    <label htmlFor='expense-amount'>Amount</label>
+                    <input
+                      id='expense-amount'
+                      type='number'
+                      className='add-expense-amount-input'
+                      value={expenseData.expenseAmount}
+                      onChange={(event) =>
+                        handleExpenseDataChange(event, 'expenseAmount')
+                      }
+                    />
                   </div>
                 </div>
               </>
-            ) : (
-              <>
-                <label className='add-expenses-label' htmlFor='search-friend'>
-                  Search for a friend
-                </label>
-                <div
-                  className='add-expense-input-container'
-                  // onBlur={() => {
-                  //   setOpenFriendsList(false);
-                  // }}
-                >
-                  <input
-                    id='search-friend'
-                    className='add-expense-search-friend-input'
-                    value={email}
-                    onChange={handleDebounce}
-                    onFocus={handleDebounce}
-                  />
-                  {openFriendsList && friendsData.length > 0 && (
-                    <FriendList
-                      friendList={friendsData}
-                      selectedFriend={selectedFriend}
-                      setSelectedFriend={setSelectedFriend}
-                    />
-                  )}
-                </div>
-              </>
             )}
-          </div>
-          <div className='add-expense-amount-block'>
-            <label htmlFor='expense-amount'>Amount</label>
-            <input
-              id='expense-amount'
-              type='number'
-              className='add-expense-amount-input'
-              value={expenseData.expenseAmount}
-              onChange={(event) =>
-                handleExpenseDataChange(event, 'expenseAmount')
-              }
-            />
+
+            <div className='add-expenses-default-items'>
+              <div className='add-expenses-type-category'>
+                {type === 'friends' ? (
+                  <div className='add-expense-type-block'>
+                    <>
+                      <label htmlFor='expense-type'>Expense Type</label>
+                      <div className='add-expense-input-container'>
+                        <input
+                          id='expense-type'
+                          className='add-expense-type-input'
+                          value={expenseType}
+                          onChange={(event) =>
+                            handleExpenseDataChange(event, 'expenseType')
+                          }
+                          onClick={() => setDropdown('expenseType')}
+                        />
+                        {dropdown === 'expenseType' && (
+                          <Dropdown
+                            dropdownValues={expenseTypeList}
+                            selectedValue={expenseType}
+                            setSelectedValue={setExpenseType}
+                            setDropdown={setDropdown}
+                          />
+                        )}
+                      </div>
+                    </>
+                  </div>
+                ) : (
+                  <div className='add-expense-amount-block'>
+                    <label htmlFor='expense-amount'>Amount</label>
+                    <input
+                      id='expense-amount'
+                      type='number'
+                      className='add-expense-amount-input'
+                      value={expenseData.expenseAmount}
+                      onChange={(event) =>
+                        handleExpenseDataChange(event, 'expenseAmount')
+                      }
+                    />
+                  </div>
+                )}
+                <div className='add-expense-category-block'>
+                  <label htmlFor='expense-category'>Expense Category</label>
+                  <div className='add-expense-input-container'>
+                    <input
+                      id='expense-amount'
+                      className='add-expense-category-input'
+                      value={expenseCategory}
+                      onChange={(event) =>
+                        handleExpenseDataChange(event, 'expenseCategory')
+                      }
+                      onClick={() => setDropdown('expenseCategory')}
+                    />
+                    {dropdown === 'expenseCategory' && (
+                      <Dropdown
+                        dropdownValues={expenseCategoryList}
+                        selectedValue={expenseCategory}
+                        setSelectedValue={setExpenseCategory}
+                        setDropdown={setDropdown}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className='add-expense-description'>
+                <div className='add-expense-description-block'>
+                  <label htmlFor='expense-description'>Description</label>
+                  <textarea
+                    id='expense-description'
+                    className='add-expense-description-input'
+                    type='text-area'
+                    value={expenseData.expenseDescription}
+                    onChange={(event) =>
+                      handleExpenseDataChange(event, 'expenseDescription')
+                    }
+                  />
+                </div>
+                <div className='add-expense-date-block'>
+                  <label htmlFor='expense-date'>Expense Date</label>
+                  <input
+                    id='expense-date'
+                    className='add-expense-date-input'
+                    type='date'
+                    max={currentDate}
+                    value={expenseData.expenseDate}
+                    onChange={(event) =>
+                      handleExpenseDataChange(event, 'expenseDate')
+                    }
+                  />
+                </div>
+              </div>
+              <div className='add-expense-submit-block'>
+                <button
+                  className='add-expense-submit-button'
+                  onClick={handleSubmit}
+                >
+                  Add Expense
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
-
-      <div className='add-expenses-default-items'>
-        <div className='add-expenses-type-category'>
-          {type === 'friends' ? (
-            <div className='add-expense-type-block'>
-              <>
-                <label htmlFor='expense-type'>Expense Type</label>
-                <div className='add-expense-input-container'>
-                  <input
-                    id='expense-type'
-                    className='add-expense-type-input'
-                    value={expenseType}
-                    onChange={(event) =>
-                      handleExpenseDataChange(event, 'expenseType')
-                    }
-                    onClick={() => setDropdown('expenseType')}
-                  />
-                  {dropdown === 'expenseType' && (
-                    <Dropdown
-                      dropdownValues={expenseTypeList}
-                      selectedValue={expenseType}
-                      setSelectedValue={setExpenseType}
-                      setDropdown={setDropdown}
-                    />
-                  )}
-                </div>
-              </>
-            </div>
-          ) : (
-            <div className='add-expense-amount-block'>
-              <label htmlFor='expense-amount'>Amount</label>
-              <input
-                id='expense-amount'
-                type='number'
-                className='add-expense-amount-input'
-                value={expenseData.expenseAmount}
-                onChange={(event) =>
-                  handleExpenseDataChange(event, 'expenseAmount')
-                }
-              />
-            </div>
-          )}
-          <div className='add-expense-category-block'>
-            <label htmlFor='expense-category'>Expense Category</label>
-            <div className='add-expense-input-container'>
-              <input
-                id='expense-amount'
-                className='add-expense-category-input'
-                value={expenseCategory}
-                onChange={(event) =>
-                  handleExpenseDataChange(event, 'expenseCategory')
-                }
-                onClick={() => setDropdown('expenseCategory')}
-              />
-              {dropdown === 'expenseCategory' && (
-                <Dropdown
-                  dropdownValues={expenseCategoryList}
-                  selectedValue={expenseCategory}
-                  setSelectedValue={setExpenseCategory}
-                  setDropdown={setDropdown}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-        <div className='add-expense-description'>
-          <div className='add-expense-description-block'>
-            <label htmlFor='expense-description'>Description</label>
-            <textarea
-              id='expense-description'
-              className='add-expense-description-input'
-              type='text-area'
-              value={expenseData.expenseDescription}
-              onChange={(event) =>
-                handleExpenseDataChange(event, 'expenseDescription')
-              }
-            />
-          </div>
-          <div className='add-expense-date-block'>
-            <label htmlFor='expense-date'>Expense Date</label>
-            <input
-              id='expense-date'
-              className='add-expense-date-input'
-              type='date'
-              max={currentDate}
-              value={expenseData.expenseDate}
-              onChange={(event) =>
-                handleExpenseDataChange(event, 'expenseDate')
-              }
-            />
-          </div>
-        </div>
-        {/* <div className='add-expense-category-date'>
-          
-        </div> */}
-        <div className='add-expense-submit-block'>
-          <button className='add-expense-submit-button' onClick={handleSubmit}>
-            Add Expense
-          </button>
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
 //lender

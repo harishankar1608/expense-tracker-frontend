@@ -248,6 +248,11 @@ body {
   font-size: 16px;
 }
 
+.expense-list-header-container {
+  display: flex;
+  justify-content: space-between;
+}
+
 .expense-list-header {
   display: flex;
   gap: 32px;
@@ -315,15 +320,52 @@ body {
     font-size: 24px;
     font-weight: 900;
   }
+
+  .expense-list-header-container {
+    display: block;
+    margin-bottom: 16px;
+  }
 }
 /* End of Expense List*/
 
 /* Start of Add Expenses*/
+.add-expense-overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.add-expense-button {
+  position: absolute;
+  bottom: 32px;
+  right: 32px;
+  border: none;
+  background-color: #fbec5d;
+  padding: 16px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: -5px 5px 5px rgba(0, 0, 0, 0.1);
+}
+
+.add-expense-button-icon {
+  height: 32px;
+  width: 32px;
+}
+
 .add-expenses-container {
-  padding: 100px 64px;
+  position: relative;
+  padding: 16px 32px;
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 60%;
+  background-color: #f0f8ff;
+  border-radius: 5px;
 }
 
 .add-expenses-default-items {
@@ -355,13 +397,6 @@ body {
   width: 50%;
   gap: 16px;
 }
-
-/* .add-expense-description-block{
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 16px;
-} */
 
 .add-expense-input-container {
   position: relative;
@@ -401,6 +436,7 @@ body {
   border-radius: 5px;
   color: #ffffff;
   font-weight: 900;
+  cursor: pointer;
 }
 
 .add-expense-selected-friend-view {
@@ -421,6 +457,21 @@ body {
 .add-expense-selected-friend-name {
   display: flex;
   gap: 24px;
+}
+
+.add-expense-close-button {
+  position: absolute;
+  border: none;
+  background-color: inherit;
+  top: 12px;
+  right: 12px;
+  cursor: pointer;
+}
+
+.add-expense-close-icon {
+  height: 24px;
+  width: 24px;
+  transform: rotate(45deg);
 }
 
 @media (max-width: 720px) {
@@ -450,6 +501,9 @@ body {
   .add-expense-description-input {
     height: 64px;
     padding: 8px 4px 8px 4px;
+  }
+  .add-expense-button {
+    bottom: 100px;
   }
 }
 /* End of Add Expenses*/
