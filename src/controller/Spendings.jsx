@@ -1,18 +1,18 @@
-import { useContext, useEffect, useState } from 'react';
-import { UserContext } from './Context';
-import AddNewExpense from '../component/AddExpense/AddNewExpense';
+import { useContext, useEffect, useState } from "react";
+import { UserContext } from "./Context";
+import AddNewExpense from "../component/AddExpense/AddNewExpense";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export default function Spendings() {
   const userData = useContext(UserContext);
   const [loading, setLoading] = useState(false);
-  const [info, setInfo] = useState('');
+  const [info, setInfo] = useState("");
 
   const [expenses, setExpenses] = useState([]);
   const [totalSelfExpense, setTotalSelfExpense] = useState(null);
 
-  const [selectedMonth, setSelectedMonth] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState("");
 
   const getExpenses = async (selectedMonth) => {
     try {
@@ -20,26 +20,29 @@ export default function Spendings() {
       const response = await fetch(
         `${backendUrl}/get-self-expenses?currentUser=${userData.userId}&selectedMonth=${selectedMonth}&currentTimezone=${currentTimezone}`
       );
-      if (!response.ok) throw new Error('Error while getting user data');
+      if (!response.ok) throw new Error("Error while getting user data");
 
       const data = await response.json();
-
-      setExpenses(data.expenses);
+      setExpenses(data?.expenses ?? []);
     } catch (error) {
-      console.log(error, 'error...');
+      console.log(error, "error...");
     }
   };
 
-  console.log(selectedMonth, 'expenses array');
-
   const handleDateSelection = (event) => {
+    console.log(event.target.value, "MONTH");
     setSelectedMonth(event.target.value);
   };
 
+  const handleExpenseChange = (month, expense) => {
+    if (month === selectedMonth)
+      setExpenses((prevValue) => [...prevValue, expense]);
+  };
+
   useEffect(() => {
-    const currentDate = new Date().toLocaleDateString('en-CA', {
-      month: '2-digit',
-      year: 'numeric',
+    const currentDate = new Date().toLocaleDateString("en-CA", {
+      month: "2-digit",
+      year: "numeric",
     });
 
     setSelectedMonth(currentDate);
@@ -50,23 +53,23 @@ export default function Spendings() {
   }, [selectedMonth]);
 
   useEffect(() => {
-    if (expenses.length === 0) return;
+    // if (expenses.length === 0) return;
 
     const totalSpendings = expenses.reduce(
-      (total, expense) => total - Number(expense.amount),
+      (total, expense) => total + Number(expense.amount),
       0
     );
     setTotalSelfExpense(totalSpendings);
   }, [expenses]);
 
   return (
-    <div className='expense-list-container'>
-      <div className='expense-list-header-container'>
-        <div className='expense-list-header'>
-          <span className='font-bold'>Total Spendings</span>
+    <div className="expense-list-container">
+      <div className="expense-list-header-container">
+        <div className="expense-list-header">
+          <span className="font-bold">Total Spendings</span>
           <span
             className={`${
-              totalSelfExpense > 0 ? 'font-green' : 'font-red'
+              totalSelfExpense > 0 ? "font-green" : "font-red"
             } font-bold`}
           >
             {totalSelfExpense}
@@ -74,8 +77,8 @@ export default function Spendings() {
         </div>
 
         <input
-          type='month'
-          className='expense-list-date-picker'
+          type="month"
+          className="expense-list-date-picker"
           value={selectedMonth}
           onChange={handleDateSelection}
         />
@@ -84,28 +87,28 @@ export default function Spendings() {
       {expenses.length > 0 ? (
         <>
           {expenses.map((expense, index) => (
-            <div className='expense-list-card' key={expense.expense_id}>
-              <div className='expense-list-card-serial'>{index + 1}</div>
-              <div className='expense-list-card-name'>
-                <span className='text-left'>{expense?.category || ''}</span>
+            <div className="expense-list-card" key={expense.expense_id}>
+              <div className="expense-list-card-serial">{index + 1}</div>
+              <div className="expense-list-card-name">
+                <span className="text-left">{expense?.category || ""}</span>
               </div>
               {/* <div className='expense-list-card-cell'>
                   <span>{friendsData?.[userId]?.email || ''}</span>
                 </div> */}
-              <div className='expense-list-card-amount'>
+              <div className="expense-list-card-amount">
                 <span
                   className={`${
-                    expense.amount > 0 ? 'font-green' : 'font-red'
+                    expense.amount > 0 ? "font-green" : "font-red"
                   } font-bold`}
                 >
                   {expense.amount}
                 </span>
               </div>
-              <div className='expense-list-card-continue'>
+              <div className="expense-list-card-continue">
                 <img
-                  className='expense-list-right-arrow'
-                  src='/right-arrow-svgrepo-com.svg'
-                  alt='Right arrow'
+                  className="expense-list-right-arrow"
+                  src="/right-arrow-svgrepo-com.svg"
+                  alt="Right arrow"
                 />
               </div>
             </div>
@@ -114,7 +117,7 @@ export default function Spendings() {
       ) : (
         <div>No Spendings found</div>
       )}
-      <AddNewExpense type='self' />
+      <AddNewExpense type="self" handleExpenseChange={handleExpenseChange} />
     </div>
   );
 }

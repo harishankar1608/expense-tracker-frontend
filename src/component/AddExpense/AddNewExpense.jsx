@@ -1,52 +1,55 @@
-import { useContext, useEffect, useState } from 'react';
-import FriendList from './FriendList';
-import { UserContext } from '../../controller/Context';
-import Dropdown from '../helpers/Dropdown';
+import { useContext, useEffect, useState } from "react";
+import FriendList from "./FriendList";
+import { UserContext } from "../../controller/Context";
+import Dropdown from "../helpers/Dropdown";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-export default function AddNewExpense({ type }) {
+export default function AddNewExpense({ type, handleExpenseChange }) {
   const userData = useContext(UserContext);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [timeoutIds, setTimeoutIds] = useState([]);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
 
   const [openFriendsList, setOpenFriendsList] = useState(false);
   const [friendsData, setFriendsData] = useState([]);
-
   const [selectedFriend, setSelectedFriend] = useState(null);
 
-  const expenseCategoryList = ['Food', 'Snacks', 'Fuel', 'Shopping', 'Movie'];
-  const [expenseCategory, setExpenseCategory] = useState('Food');
+  const expenseCategoryList = ["Food", "Snacks", "Fuel", "Shopping", "Movie"];
 
-  const expenseTypeList = ['Lended', 'Borrowed'];
-  const [expenseType, setExpenseType] = useState('Lended');
+  const expenseTypeList = ["lended", "borrowed"];
+
+  const selfExpenseTypes = ["spent", "received"];
+
+  const [selfExpenseType, setSelfExpenseType] = useState(selfExpenseTypes[0]);
 
   const [dropdown, setDropdown] = useState(null);
 
-  const [expenseData, setExpenseData] = useState({
-    expenseDate: '',
-    expenseType: 'lended',
-    expenseAmount: '',
-    expenseCategory: 'Food',
-    expenseDescription: '',
-  });
+  const defaultExpenseData = {
+    expenseDate: "",
+    expenseType: "lended",
+    expenseAmount: "",
+    expenseCategory: "Food",
+    expenseDescription: "",
+  };
+  const [expenseData, setExpenseData] = useState(defaultExpenseData);
 
   const [popupOpen, setPopupOpen] = useState(false);
 
-  const currentDate = new Date().toLocaleDateString('en-CA');
+  const currentDate = new Date().toLocaleDateString("en-CA");
 
   const findFriendsWithEmail = async (emailEntered) => {
     try {
+      console.log("DEBOUNSE CALLING SEARCH");
       const response = await fetch(
         `${backendUrl}/find-friends?currentUser=${userData.userId}&email=${emailEntered}`
       );
-      if (!response.ok) throw new Error('Error while fetching friends');
-
+      if (!response.ok) throw new Error("Error while fetching friends");
       const { friends } = await response.json();
+      console.log(friends);
       setFriendsData(friends);
     } catch (error) {
-      console.log(error, 'error');
+      console.log(error, "error");
     }
   };
 
@@ -76,45 +79,76 @@ export default function AddNewExpense({ type }) {
      * expenseCategory - optional
      * expenseDescription - optional
      */
-
     if (!expenseData.expenseAmount || isNaN(Number(expenseData.expenseAmount)))
-      return setError('Please enter an amount to add expense');
+      return setError("Please enter an amount to add expense");
 
-    if (type !== 'self' && !selectedFriend)
-      return setError('Please select a friend to add expense');
+    if (type !== "self" && !selectedFriend)
+      return setError("Please select a friend to add expense");
 
+    console.log("about to send request");
     try {
       const response = await fetch(`${backendUrl}/add-expense`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          expenseType: type === 'self' ? 'self' : expenseData.expenseType,
-          expenseAmount: Number(expenseData.expenseAmount),
+          expenseType: type === "self" ? "self" : expenseData.expenseType,
+          expenseAmount:
+            type === "self" && selfExpenseType === "spent"
+              ? -Number(expenseData.expenseAmount)
+              : Number(expenseData.expenseAmount),
           expenseDescription: expenseData.expenseDescription,
           expenseCategory: expenseData.expenseCategory,
           expenseDate: expenseData.expenseDate || new Date(),
-          friendId: selectedFriend?.user_id || '',
+          friendId: selectedFriend?.user_id || "",
           currentUser: userData.userId,
         }),
       });
+
       if (response.status !== 200)
-        throw new Error('Error while adding expense');
+        throw new Error("Error while adding expense");
+
+      const data = await response.json();
+      console.log(data, "DAT AFTER ADDING EXPENSE");
+      if (type === "friends") {
+        console.log(expenseData, "Expense Data IN FRIEND");
+        handleExpenseChange(
+          selectedFriend,
+          expenseData.expenseType === "lended"
+            ? Number(expenseData.expenseAmount)
+            : -Number(expenseData.expenseAmount)
+        );
+      } else {
+        //get yyyy-mm format
+        const currentExpenseDate = new Date(expenseData.expenseDate);
+        const monthAndYear = `${currentExpenseDate.getFullYear()}-${`${
+          currentExpenseDate.getMonth() + 1
+        }`.padStart(2, "0")}`;
+
+        handleExpenseChange(monthAndYear, data.expense);
+      }
+      //reset state back to default values after adding expense since component won't unmount
+      setExpenseData(defaultExpenseData);
+      setEmail("");
+      setSelectedFriend(null);
+      setPopupOpen(false);
     } catch (error) {
-      console.log(error, 'error');
+      console.log(error, "error");
     }
   };
 
-  const handleExpenseDataChange = (event, type) => {
+  const handleExpenseDataChange = (value, type) => {
+    console.log(value, type, "Expense TYpe");
     setExpenseData((prevValue) => ({
       ...prevValue,
-      [type]: event.target.value,
+      [type]: value,
     }));
   };
 
   const handleFriendSelected = () => {
-    setEmail('');
+    console.log("handle selected friend is called");
+    setEmail("");
     setFriendsData([]);
   };
 
@@ -136,39 +170,39 @@ export default function AddNewExpense({ type }) {
 
   return (
     <>
-      <button className='add-expense-button' onClick={handlePopupOpen}>
+      <button className="add-expense-button" onClick={handlePopupOpen}>
         <img
-          src='/plus-icon.svg'
-          alt='add-spendings'
-          className='add-expense-button-icon'
+          src="/plus-icon.svg"
+          alt="add-spendings"
+          className="add-expense-button-icon"
         />
       </button>
 
       {popupOpen && (
-        <div className='add-expense-overlay'>
-          <div className='add-expenses-container'>
+        <div className="add-expense-overlay">
+          <div className="add-expenses-container">
             <button
               onClick={handleClosePopup}
-              className='add-expense-close-button'
+              className="add-expense-close-button"
             >
-              <img className='add-expense-close-icon' src='plus-icon.svg' />
+              <img className="add-expense-close-icon" src="plus-icon.svg" />
             </button>
-            {type === 'friends' && (
+            {type === "friends" && (
               <>
-                <div className='add-expense-search-friend-amount'>
-                  <div className='add-expense-search-friend'>
+                <div className="add-expense-search-friend-amount">
+                  <div className="add-expense-search-friend">
                     {selectedFriend ? (
                       <>
                         <label>Adding For</label>
                         <div>
-                          <div className='add-expense-selected-friend-view'>
-                            <div className='add-expense-selected-friend-name'>
+                          <div className="add-expense-selected-friend-view">
+                            <div className="add-expense-selected-friend-name">
                               <div>{selectedFriend.name}</div>
                               <div>{selectedFriend.email}</div>
                             </div>
                             <div
                               onClick={clearSelectedFriend}
-                              className='add-expense-clear-friend'
+                              className="add-expense-clear-friend"
                             >
                               x
                             </div>
@@ -178,20 +212,15 @@ export default function AddNewExpense({ type }) {
                     ) : (
                       <>
                         <label
-                          className='add-expenses-label'
-                          htmlFor='search-friend'
+                          className="add-expenses-label"
+                          htmlFor="search-friend"
                         >
                           Search for a friend
                         </label>
-                        <div
-                          className='add-expense-input-container'
-                          // onBlur={() => {
-                          //   setOpenFriendsList(false);
-                          // }}
-                        >
+                        <div className="add-expense-input-container">
                           <input
-                            id='search-friend'
-                            className='add-expense-search-friend-input'
+                            id="search-friend"
+                            className="add-expense-search-friend-input"
                             value={email}
                             onChange={handleDebounce}
                             onFocus={handleDebounce}
@@ -207,15 +236,18 @@ export default function AddNewExpense({ type }) {
                       </>
                     )}
                   </div>
-                  <div className='add-expense-amount-block'>
-                    <label htmlFor='expense-amount'>Amount</label>
+                  <div className="add-expense-amount-block">
+                    <label htmlFor="expense-amount">Amount</label>
                     <input
-                      id='expense-amount'
-                      type='number'
-                      className='add-expense-amount-input'
+                      id="expense-amount"
+                      type="number"
+                      className="add-expense-amount-input"
                       value={expenseData.expenseAmount}
                       onChange={(event) =>
-                        handleExpenseDataChange(event, 'expenseAmount')
+                        handleExpenseDataChange(
+                          event.target.value,
+                          "expenseAmount"
+                        )
                       }
                     />
                   </div>
@@ -223,27 +255,25 @@ export default function AddNewExpense({ type }) {
               </>
             )}
 
-            <div className='add-expenses-default-items'>
-              <div className='add-expenses-type-category'>
-                {type === 'friends' ? (
-                  <div className='add-expense-type-block'>
+            <div className="add-expenses-default-items">
+              <div className="add-expenses-type-category">
+                {type === "friends" ? (
+                  <div className="add-expense-type-block">
                     <>
-                      <label htmlFor='expense-type'>Expense Type</label>
-                      <div className='add-expense-input-container'>
+                      <label htmlFor="expense-type">Expense Type</label>
+                      <div className="add-expense-input-container">
                         <input
-                          id='expense-type'
-                          className='add-expense-type-input'
-                          value={expenseType}
-                          onChange={(event) =>
-                            handleExpenseDataChange(event, 'expenseType')
-                          }
-                          onClick={() => setDropdown('expenseType')}
+                          id="expense-type"
+                          className="add-expense-type-input"
+                          value={expenseData.expenseType}
+                          onClick={() => setDropdown("expenseType")}
                         />
-                        {dropdown === 'expenseType' && (
+                        {dropdown === "expenseType" && (
                           <Dropdown
                             dropdownValues={expenseTypeList}
-                            selectedValue={expenseType}
-                            setSelectedValue={setExpenseType}
+                            selectedValue={expenseData.expenseType}
+                            handleChange={handleExpenseDataChange}
+                            type={"expenseType"}
                             setDropdown={setDropdown}
                           />
                         )}
@@ -251,72 +281,104 @@ export default function AddNewExpense({ type }) {
                     </>
                   </div>
                 ) : (
-                  <div className='add-expense-amount-block'>
-                    <label htmlFor='expense-amount'>Amount</label>
-                    <input
-                      id='expense-amount'
-                      type='number'
-                      className='add-expense-amount-input'
-                      value={expenseData.expenseAmount}
-                      onChange={(event) =>
-                        handleExpenseDataChange(event, 'expenseAmount')
-                      }
-                    />
-                  </div>
+                  <>
+                    <div className="add-expense-amount-block">
+                      <label htmlFor="expense-amount">Amount</label>
+                      <input
+                        id="expense-amount"
+                        type="number"
+                        className="add-expense-amount-input"
+                        value={expenseData.expenseAmount}
+                        onChange={(event) =>
+                          handleExpenseDataChange(
+                            event.target.value,
+                            "expenseAmount"
+                          )
+                        }
+                      />
+                    </div>
+                    <div className="add-expense-category-block">
+                      <label htmlFor="expense-category">Type</label>
+                      <div className="add-expense-input-container">
+                        <input
+                          id="expense-category"
+                          className="add-expense-category-input"
+                          value={selfExpenseType}
+                          onClick={() => setDropdown("selfExpenseType")}
+                        />
+                        {dropdown === "selfExpenseType" && (
+                          <Dropdown
+                            dropdownValues={selfExpenseTypes}
+                            selectedValue={selfExpenseType}
+                            handleChange={(value) => setSelfExpenseType(value)}
+                            type={"selfExpenseType"}
+                            setDropdown={setDropdown}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  </>
                 )}
-                <div className='add-expense-category-block'>
-                  <label htmlFor='expense-category'>Expense Category</label>
-                  <div className='add-expense-input-container'>
+                <div className="add-expense-category-block">
+                  <label htmlFor="expense-category">Expense Category</label>
+                  <div className="add-expense-input-container">
                     <input
-                      id='expense-amount'
-                      className='add-expense-category-input'
-                      value={expenseCategory}
+                      id="expense-amount"
+                      className="add-expense-category-input"
+                      value={expenseData.expenseCategory}
                       onChange={(event) =>
-                        handleExpenseDataChange(event, 'expenseCategory')
+                        handleExpenseDataChange(
+                          event.target.value,
+                          "expenseCategory"
+                        )
                       }
-                      onClick={() => setDropdown('expenseCategory')}
+                      onClick={() => setDropdown("expenseCategory")}
                     />
-                    {dropdown === 'expenseCategory' && (
+                    {dropdown === "expenseCategory" && (
                       <Dropdown
                         dropdownValues={expenseCategoryList}
-                        selectedValue={expenseCategory}
-                        setSelectedValue={setExpenseCategory}
+                        selectedValue={expenseData.expenseCategory}
+                        handleChange={handleExpenseDataChange}
+                        type={"expenseCategory"}
                         setDropdown={setDropdown}
                       />
                     )}
                   </div>
                 </div>
               </div>
-              <div className='add-expense-description'>
-                <div className='add-expense-description-block'>
-                  <label htmlFor='expense-description'>Description</label>
+              <div className="add-expense-description">
+                <div className="add-expense-description-block">
+                  <label htmlFor="expense-description">Description</label>
                   <textarea
-                    id='expense-description'
-                    className='add-expense-description-input'
-                    type='text-area'
+                    id="expense-description"
+                    className="add-expense-description-input"
+                    type="text-area"
                     value={expenseData.expenseDescription}
                     onChange={(event) =>
-                      handleExpenseDataChange(event, 'expenseDescription')
+                      handleExpenseDataChange(
+                        event.target.value,
+                        "expenseDescription"
+                      )
                     }
                   />
                 </div>
-                <div className='add-expense-date-block'>
-                  <label htmlFor='expense-date'>Expense Date</label>
+                <div className="add-expense-date-block">
+                  <label htmlFor="expense-date">Expense Date</label>
                   <input
-                    id='expense-date'
-                    className='add-expense-date-input'
-                    type='date'
+                    id="expense-date"
+                    className="add-expense-date-input"
+                    type="date"
                     max={currentDate}
                     value={expenseData.expenseDate}
                     onChange={(event) =>
-                      handleExpenseDataChange(event, 'expenseDate')
+                      handleExpenseDataChange(event.target.value, "expenseDate")
                     }
                   />
                 </div>
               </div>
-              <div className='add-expense-submit-block'>
+              <div className="add-expense-submit-block">
                 <button
-                  className='add-expense-submit-button'
+                  className="add-expense-submit-button"
                   onClick={handleSubmit}
                 >
                   Add Expense

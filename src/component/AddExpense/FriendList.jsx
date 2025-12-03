@@ -1,12 +1,14 @@
 export default function FriendList(props) {
   const { friendList, setSelectedFriend } = props;
 
+  console.log(friendList, "friend list");
   const selectFriend = (friend) => {
+    console.log(friend, "POPUPFRIEND");
     setSelectedFriend(friend);
   };
 
   return (
-    <div className='friend-list-container'>
+    <div className="friend-list-container">
       {friendList.map((friend, index) => (
         <div
           onClick={() => selectFriend(friend)}

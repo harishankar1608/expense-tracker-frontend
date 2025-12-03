@@ -1,16 +1,16 @@
-import { useContext, useEffect, useState } from 'react';
-import { UserContext } from './Context';
+import { useContext, useEffect, useState } from "react";
+import { UserContext } from "./Context";
+import AddNewExpense from "../component/AddExpense/AddNewExpense";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export default function ExpenseList() {
   const userData = useContext(UserContext);
   const [loading, setLoading] = useState(false);
-  const [info, setInfo] = useState('');
+  const [info, setInfo] = useState("");
 
   const [expenses, setExpenses] = useState([]);
   const [totalFriendExpense, setTotalFriendExpense] = useState(null);
-  const [totalSelfExpense, setTotalSelfExpense] = useState(null);
   const [friendsData, setFriendsData] = useState(null);
   const [totalAmount, setTotalAmount] = useState(0);
 
@@ -19,26 +19,26 @@ export default function ExpenseList() {
       const response = await fetch(
         `${backendUrl}/get-friend-expenses?currentUser=${userData.userId}`
       );
-      if (!response.ok) throw new Error('Error while getting user data');
+      if (!response.ok) throw new Error("Error while getting user data");
 
       const data = await response.json();
       if (!data?.friends) {
-        setInfo('No Friends found');
+        setInfo("No Friends found");
       }
 
       if (!data?.expenses) {
-        setInfo('No Expenses found');
+        setInfo("No Expenses found");
         return;
       }
 
       setExpenses(data.expenses);
       setFriendsData(data.friends);
     } catch (error) {
-      console.log(error, 'error...');
+      console.log(error, "error...");
     }
   };
 
-  console.log(expenses, 'expenses array');
+  console.log(expenses, "expenses array");
 
   const convertExpenseData = (expenses) => {
     let selfExpense = 0;
@@ -66,6 +66,25 @@ export default function ExpenseList() {
     return { friendsExpensesConverted, selfExpense };
   };
 
+  const handleExpenseChange = (userData, expense) => {
+    console.log(totalFriendExpense, "TOTAL FRIENDS EXPENSE");
+    console.log(userData, expense, "handleExpenseChange");
+    //If no friends are ther in friends data add it to the object
+    if (!friendsData[userData.user_id])
+      setFriendsData((prevValue) => ({
+        ...prevValue,
+        [userData.user_id]: userData,
+      }));
+
+    setTotalFriendExpense((prevValue) => ({
+      ...prevValue,
+      [userData.user_id]:
+        (totalFriendExpense?.[userData.user_id] ?? 0) + expense,
+    }));
+
+    setTotalAmount((prevValue) => prevValue + expense);
+  };
+
   useEffect(() => {
     getExpenses();
   }, []);
@@ -86,15 +105,17 @@ export default function ExpenseList() {
     const { friendsExpensesConverted, selfExpense } =
       convertExpenseData(expenses);
     setTotalFriendExpense(friendsExpensesConverted);
-    setTotalSelfExpense(selfExpense);
+    // setTotalSelfExpense(selfExpense);
   }, [expenses]);
 
+  console.log(friendsData, "Friends Data");
+
   return (
-    <div className='expense-list-container'>
-      <div className='expense-list-header'>
-        <span className='font-bold'>Total Friends Expenses</span>
+    <div className="expense-list-container">
+      <div className="expense-list-header">
+        <span className="font-bold">Total Friends Expenses</span>
         <span
-          className={`${totalAmount > 0 ? 'font-green' : 'font-red'} font-bold`}
+          className={`${totalAmount > 0 ? "font-green" : "font-red"} font-bold`}
         >
           {totalAmount}
         </span>
@@ -104,30 +125,29 @@ export default function ExpenseList() {
         (Object.keys(totalFriendExpense).length > 0 ? (
           <>
             {Object.keys(totalFriendExpense).map((userId, index) => (
-              <div className='expense-list-card' key={userId}>
-                <div className='expense-list-card-serial'>{index + 1}</div>
-                <div className='expense-list-card-name'>
-                  <span className='text-left'>
-                    {friendsData?.[userId]?.name || ''}
+              <div className="expense-list-card" key={userId}>
+                <div className="expense-list-card-serial">{index + 1}</div>
+                <div className="expense-list-card-name">
+                  <span className="text-left">
+                    {friendsData?.[userId]?.name || ""}
                   </span>
                 </div>
-                {/* <div className='expense-list-card-cell'>
-                  <span>{friendsData?.[userId]?.email || ''}</span>
-                </div> */}
-                <div className='expense-list-card-amount'>
+                <div className="expense-list-card-amount">
                   <span
                     className={`${
-                      totalFriendExpense[userId] > 0 ? 'font-green' : 'font-red'
+                      totalFriendExpense[userId] >= 0
+                        ? "font-green"
+                        : "font-red"
                     } font-bold`}
                   >
                     {totalFriendExpense[userId]}
                   </span>
                 </div>
-                <div className='expense-list-card-continue'>
+                <div className="expense-list-card-continue">
                   <img
-                    className='expense-list-right-arrow'
-                    src='/right-arrow-svgrepo-com.svg'
-                    alt='Right arrow'
+                    className="expense-list-right-arrow"
+                    src="/right-arrow-svgrepo-com.svg"
+                    alt="Right arrow"
                   />
                 </div>
               </div>
@@ -136,18 +156,7 @@ export default function ExpenseList() {
         ) : (
           <div>No Friend Expenses found</div>
         ))}
-      {/* {totalSelfExpense !== null && (
-        <>
-          <div>Self Expense</div>
-          <div>
-            <span>{userData?.username || ''}</span>
-          </div>
-          <div>
-            <span>Expense</span> <span>{totalSelfExpense}</span>
-          </div>
-          <br />
-        </>
-      )} */}
+      <AddNewExpense type="friends" handleExpenseChange={handleExpenseChange} />
     </div>
   );
 }
