@@ -45,7 +45,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           #build docker container - push it to ECR
-          docker build --build-args BACKEND_URL=${{secrets.BACKEND_URL}} -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build --build-arg BACKEND_URL=${{secrets.BACKEND_URL}} -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Update new image id in ECS Task definition
