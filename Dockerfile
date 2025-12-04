@@ -13,15 +13,23 @@ ARG NGINX_VERSION=alpine3.22
 # Use node image for base image for all stages.
 FROM node:${NODE_VERSION} as base
 
+
 # Set working directory for all build stages.
 WORKDIR /app
 
 COPY package*.json ./
 
+ARG BACKEND_URL
+
+ENV REACT_APP_BACKEND_URL=$BACKEND_URL
+
+
 RUN npm ci
 
 COPY . .
 
+# RUN --mount=type=secret,id=REACT_BACKEND_URL \
+#     export REACT_BACKEND_URL=$(cat /run/secrets/REACT_BACKEND_URL) \
 RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:${NGINX_VERSION}
