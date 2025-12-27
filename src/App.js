@@ -2,20 +2,19 @@ import "./App.css";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Signup from "./controller/Signup";
 import Login from "./controller/Login";
-import ProtectedRoute from "./controller/authenticator/ProtectedRoute";
-import OpenRoute from "./controller/authenticator/OpenRoute";
+import ProtectedRoute from "./controller/authenticate/ProtectedRoute";
+import OpenRoute from "./controller/authenticate/OpenRoute";
 import Dashboard from "./controller/Dashboard";
-import FindFriends from "./controller/FindFriends";
 import Request from "./controller/Request";
 import ExpenseList from "./controller/ExpenseList";
 import AddNewExpense from "./component/AddExpense/AddNewExpense";
+import WebSocketComp from "./controller/WebSocket";
+import { AuthProvider } from "./context/AuthContext";
+import { ChatProvider } from "./context/ChatContext";
 
 const routes = createBrowserRouter([
   { path: "/", element: <ProtectedRoute component={<Dashboard />} /> },
-  {
-    path: "/find-friends",
-    element: <ProtectedRoute component={<FindFriends />} />,
-  },
+  { path: "/ws", element: <ProtectedRoute component={<WebSocketComp />} /> },
   {
     path: "/expenses",
     element: <ProtectedRoute component={<ExpenseList />} />,
@@ -41,19 +40,17 @@ const routes = createBrowserRouter([
     element: <OpenRoute component={<Signup />} />,
   },
 ]);
+
 function App() {
   return (
     <div className="container">
-      <RouterProvider router={routes} />
+      <AuthProvider>
+        <ChatProvider>
+          <RouterProvider router={routes} />
+        </ChatProvider>
+      </AuthProvider>
     </div>
   );
 }
 
 export default App;
-
-// after adding expense close popup automatically and the expense in expense list - friend expense - done
-// after adding expense close popup automatically and the expense in expense list - spendings - done
-// When a different month is selected update the total spending - spendings - done
-// only display spendings of the selected month - done
-// make the drop down disappear when clicked else where in both friend expense and spendings
-//

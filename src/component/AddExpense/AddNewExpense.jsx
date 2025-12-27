@@ -1,18 +1,14 @@
-import { useContext, useEffect, useState } from "react";
-import FriendList from "./FriendList";
-import { UserContext } from "../../controller/Context";
+import { useState } from "react";
+import SearchFriendList from "./SearchFriendList.jsx";
 import Dropdown from "../helpers/Dropdown";
+import { validateExpense } from "../../utils/validateExpense";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export default function AddNewExpense({ type, handleExpenseChange }) {
-  const userData = useContext(UserContext);
+  const { userId } = useAuth();
   const [error, setError] = useState("");
-  const [timeoutIds, setTimeoutIds] = useState([]);
-  const [email, setEmail] = useState("");
-
-  const [openFriendsList, setOpenFriendsList] = useState(false);
-  const [friendsData, setFriendsData] = useState([]);
   const [selectedFriend, setSelectedFriend] = useState(null);
 
   const expenseCategoryList = ["Food", "Snacks", "Fuel", "Shopping", "Movie"];
@@ -38,39 +34,6 @@ export default function AddNewExpense({ type, handleExpenseChange }) {
 
   const currentDate = new Date().toLocaleDateString("en-CA");
 
-  const findFriendsWithEmail = async (emailEntered) => {
-    try {
-      console.log("DEBOUNSE CALLING SEARCH");
-      const response = await fetch(
-        `${backendUrl}/find-friends?currentUser=${userData.userId}&email=${emailEntered}`
-      );
-      if (!response.ok) throw new Error("Error while fetching friends");
-      const { friends } = await response.json();
-      console.log(friends);
-      setFriendsData(friends);
-    } catch (error) {
-      console.log(error, "error");
-    }
-  };
-
-  const handleDebounce = (event) => {
-    timeoutIds.forEach((id) => window.clearTimeout(id));
-
-    setTimeoutIds([]);
-    setEmail(event.target.value);
-    if (!event.target.value) {
-      setOpenFriendsList(false);
-      setFriendsData([]);
-      return;
-    }
-    setOpenFriendsList(true);
-    const timeoutId = setTimeout(() => {
-      findFriendsWithEmail(event.target.value);
-    }, 600);
-
-    setTimeoutIds((prevValue) => [...prevValue, timeoutId]);
-  };
-
   const handleSubmit = async () => {
     /**
      * expenseDate - optional
@@ -79,13 +42,15 @@ export default function AddNewExpense({ type, handleExpenseChange }) {
      * expenseCategory - optional
      * expenseDescription - optional
      */
-    if (!expenseData.expenseAmount || isNaN(Number(expenseData.expenseAmount)))
-      return setError("Please enter an amount to add expense");
 
-    if (type !== "self" && !selectedFriend)
-      return setError("Please select a friend to add expense");
+    const isInValid = validateExpense(
+      expenseData.expenseAmount,
+      expenseData.expenseType,
+      selectedFriend
+    );
 
-    console.log("about to send request");
+    if (isInValid) return setError(isInValid);
+
     try {
       const response = await fetch(`${backendUrl}/add-expense`, {
         method: "POST",
@@ -102,7 +67,7 @@ export default function AddNewExpense({ type, handleExpenseChange }) {
           expenseCategory: expenseData.expenseCategory,
           expenseDate: expenseData.expenseDate || new Date(),
           friendId: selectedFriend?.user_id || "",
-          currentUser: userData.userId,
+          currentUser: userId,
         }),
       });
 
@@ -130,7 +95,6 @@ export default function AddNewExpense({ type, handleExpenseChange }) {
       }
       //reset state back to default values after adding expense since component won't unmount
       setExpenseData(defaultExpenseData);
-      setEmail("");
       setSelectedFriend(null);
       setPopupOpen(false);
     } catch (error) {
@@ -146,20 +110,6 @@ export default function AddNewExpense({ type, handleExpenseChange }) {
     }));
   };
 
-  const handleFriendSelected = () => {
-    console.log("handle selected friend is called");
-    setEmail("");
-    setFriendsData([]);
-  };
-
-  useEffect(() => {
-    if (selectedFriend) handleFriendSelected();
-  }, [selectedFriend]);
-
-  const clearSelectedFriend = () => {
-    setSelectedFriend(null);
-  };
-
   const handlePopupOpen = () => {
     setPopupOpen(true);
   };
@@ -168,6 +118,9 @@ export default function AddNewExpense({ type, handleExpenseChange }) {
     setPopupOpen(false);
   };
 
+  const clearSelectedFriend = () => {
+    setSelectedFriend(null);
+  };
   return (
     <>
       <button className="add-expense-button" onClick={handlePopupOpen}>
@@ -191,49 +144,32 @@ export default function AddNewExpense({ type, handleExpenseChange }) {
               <>
                 <div className="add-expense-search-friend-amount">
                   <div className="add-expense-search-friend">
+                    <label
+                      className="add-expenses-label"
+                      htmlFor="search-friend"
+                    >
+                      Search for a friend
+                    </label>
                     {selectedFriend ? (
-                      <>
-                        <label>Adding For</label>
-                        <div>
-                          <div className="add-expense-selected-friend-view">
-                            <div className="add-expense-selected-friend-name">
-                              <div>{selectedFriend.name}</div>
-                              <div>{selectedFriend.email}</div>
-                            </div>
-                            <div
-                              onClick={clearSelectedFriend}
-                              className="add-expense-clear-friend"
-                            >
-                              x
-                            </div>
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <label
-                          className="add-expenses-label"
-                          htmlFor="search-friend"
+                      <div className="add-expense-selected-friend-view">
+                        <input
+                          id="search-friend"
+                          className="search-friend-input"
+                          value={selectedFriend.email}
+                          disabled={true}
+                        />
+                        <div
+                          onClick={clearSelectedFriend}
+                          className="add-expense-clear-friend"
                         >
-                          Search for a friend
-                        </label>
-                        <div className="add-expense-input-container">
-                          <input
-                            id="search-friend"
-                            className="add-expense-search-friend-input"
-                            value={email}
-                            onChange={handleDebounce}
-                            onFocus={handleDebounce}
-                          />
-                          {openFriendsList && friendsData.length > 0 && (
-                            <FriendList
-                              friendList={friendsData}
-                              selectedFriend={selectedFriend}
-                              setSelectedFriend={setSelectedFriend}
-                            />
-                          )}
+                          x
                         </div>
-                      </>
+                      </div>
+                    ) : (
+                      <SearchFriendList
+                        setSelectedFriend={setSelectedFriend}
+                        buttonContent={"Select"}
+                      />
                     )}
                   </div>
                   <div className="add-expense-amount-block">

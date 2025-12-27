@@ -1,30 +1,28 @@
-import { useContext, useEffect, useState } from 'react';
-import { UserContext } from '../../controller/Context';
-import AddFriend from './AddFriend';
+import { useEffect, useState } from "react";
+import AddFriend from "./AddFriend";
+import { useAuth } from "../../context/AuthContext";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export default function FriendRequest() {
   const [loading, setLoading] = useState(false);
   const [receivedRequest, setReceivedRequest] = useState([]);
-  const userData = useContext(UserContext);
-  console.log(userData, 'userData');
+  const { userId } = useAuth();
 
   const getReceivedRequest = async () => {
     setLoading(true);
-    console.log(userData);
     try {
       const response = await fetch(
-        `${backendUrl}/friend-requests?currentUser=${userData.userId}`
+        `${backendUrl}/friend-requests?currentUser=${userId}`
       );
       if (response.status !== 200)
-        throw new Error('Error while getting requested list');
+        throw new Error("Error while getting requested list");
       const data = await response.json();
       const requests = data?.requests || [];
 
       setReceivedRequest(requests);
     } catch (error) {
-      console.log(error, 'error...');
+      console.log(error, "error...");
     }
     setLoading(false);
   };
@@ -35,21 +33,21 @@ export default function FriendRequest() {
   const rejectFriendRequest = async (friendId) => {
     try {
       const response = await fetch(`${backendUrl}/reject-request`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          currentUser: userData.userId,
+          currentUser: userId,
           friendId,
         }),
       });
 
-      if (!response.ok) throw new Error('Error while rejecting friend request');
+      if (!response.ok) throw new Error("Error while rejecting friend request");
 
       const { request_exists } = await response.json();
 
-      if (!request_exists) throw new Error('No request found');
+      if (!request_exists) throw new Error("No request found");
 
       const updatedRequestList = receivedRequest.filter(
         (request) => request.user_id !== friendId
@@ -57,75 +55,75 @@ export default function FriendRequest() {
 
       setReceivedRequest(updatedRequestList);
     } catch (error) {
-      console.log(error, 'Error');
+      console.log(error, "Error");
     }
   };
 
   const acceptFriendRequest = async (friendId) => {
     try {
       const response = await fetch(`${backendUrl}/accept-request`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          currentUser: userData.userId,
+          currentUser: userId,
           friendId,
         }),
       });
 
-      if (!response.ok) throw new Error('Error while accepting friend request');
+      if (!response.ok) throw new Error("Error while accepting friend request");
 
       const { request_exists } = await response.json();
       console.log(request_exists);
 
-      if (!request_exists) throw new Error('No request found');
+      if (!request_exists) throw new Error("No request found");
 
       const updatedRequestList = receivedRequest.filter(
         (request) => request.user_id !== friendId
       );
 
-      console.log(updatedRequestList, 'updatting');
+      console.log(updatedRequestList, "updatting");
 
       setReceivedRequest(updatedRequestList);
     } catch (error) {
-      console.log(error, 'Error');
+      console.log(error, "Error");
     }
   };
 
   return (
-    <div className='friend-request-container'>
+    <div className="friend-request-container">
       {loading ? (
         <div>loading</div>
       ) : receivedRequest.length === 0 ? (
         <div>No request found</div>
       ) : (
-        <div className='friend-request-list-container'>
+        <div className="friend-request-list-container">
           {receivedRequest.map((user) => (
-            <div className='friend-request-list' key={user.user_id}>
-              <div className='friend-request-name-container'>
-                <div className='friend-request-email-tooltip'>
-                  <span>{user?.name || ''}</span>
-                  <div className='email-tooltip'>{user?.email || ''} </div>
-                  <div className='email-tooltip-pointer'></div>
+            <div className="friend-request-list" key={user.user_id}>
+              <div className="friend-request-name-container">
+                <div className="friend-request-email-tooltip">
+                  <span>{user?.name || ""}</span>
+                  <div className="email-tooltip">{user?.email || ""} </div>
+                  <div className="email-tooltip-pointer"></div>
                 </div>
                 <img
-                  className='friend-request-info-icon'
-                  src='/info-icon.svg'
-                  alt='info'
+                  className="friend-request-info-icon"
+                  src="/info-icon.svg"
+                  alt="info"
                 />
               </div>
-              <div className='friend-request-email'>{user?.email || ''}</div>
+              <div className="friend-request-email">{user?.email || ""}</div>
 
-              <div className='friend-request-button-container'>
+              <div className="friend-request-button-container">
                 <button
-                  className='friend-request-button friend-request-accept-button'
+                  className="friend-request-button friend-request-accept-button"
                   onClick={() => acceptFriendRequest(user.user_id)}
                 >
                   Accept
                 </button>
                 <button
-                  className='friend-request-button friend-request-reject-button'
+                  className="friend-request-button friend-request-reject-button"
                   onClick={() => rejectFriendRequest(user.user_id)}
                 >
                   Reject

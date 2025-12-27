@@ -1,11 +1,11 @@
-import { useContext, useEffect, useState } from "react";
-import { UserContext } from "./Context";
+import { useEffect, useState } from "react";
 import AddNewExpense from "../component/AddExpense/AddNewExpense";
+import { useAuth } from "../context/AuthContext";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export default function Spendings() {
-  const userData = useContext(UserContext);
+  const { userId } = useAuth();
   const [loading, setLoading] = useState(false);
   const [info, setInfo] = useState("");
 
@@ -18,7 +18,7 @@ export default function Spendings() {
     try {
       const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const response = await fetch(
-        `${backendUrl}/get-self-expenses?currentUser=${userData.userId}&selectedMonth=${selectedMonth}&currentTimezone=${currentTimezone}`
+        `${backendUrl}/get-self-expenses?currentUser=${userId}&selectedMonth=${selectedMonth}&currentTimezone=${currentTimezone}`
       );
       if (!response.ok) throw new Error("Error while getting user data");
 

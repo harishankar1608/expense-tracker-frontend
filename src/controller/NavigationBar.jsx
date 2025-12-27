@@ -1,10 +1,12 @@
-import { useContext } from "react";
-import { UserContext } from "./Context";
+import { useAuth } from "../context/AuthContext";
+import { useChat } from "../context/ChatContext";
 
 export const NavigationBar = (props) => {
   const { currentTab, setCurrentTab } = props;
-  const userContext = useContext(UserContext);
-  const { username } = userContext;
+
+  const { username } = useAuth();
+  const { unreadMessages } = useChat();
+
   return (
     <div className="nav-bar-container">
       <div className="nav-welcome-user">
@@ -58,12 +60,19 @@ export const NavigationBar = (props) => {
           }`}
           onClick={() => setCurrentTab(4)}
         >
-          <img
-            className="nav-bar-icon"
-            src="expense-list-icon.svg"
-            alt="expense list icon"
-          />
-          <span>Expenses</span>
+          <div className="nav-bar-message-icon-container">
+            <img
+              className="nav-bar-icon "
+              src="messages-icon.svg"
+              alt="expense list icon"
+            />
+            {unreadMessages > 0 && (
+              <span className="nav-bar-message-count-container">
+                <span className="nav-bar-message-count">{unreadMessages}</span>
+              </span>
+            )}
+          </div>
+          <span>Messages</span>
         </div>
         <div
           className={`nav-icon-content ${
