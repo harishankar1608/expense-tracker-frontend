@@ -2,7 +2,12 @@ import { useState } from "react";
 import { useAuth } from "../../context/AuthContext.jsx";
 
 export default function SearchFriendList(props) {
-  const { handleSelectFriend, buttonContent, placeholder } = props;
+  const {
+    handleSelectFriend,
+    buttonContent,
+    placeholder,
+    includeConversation = false,
+  } = props;
 
   const { userId } = useAuth();
 
@@ -23,7 +28,7 @@ export default function SearchFriendList(props) {
     try {
       console.log("DEBOUNSE CALLING SEARCH");
       const response = await fetch(
-        `${backendUrl}/find-friends?currentUser=${userId}&email=${emailEntered}`
+        `${backendUrl}/find-friends?currentUser=${userId}&email=${emailEntered}&includeConversation=${includeConversation}`
       );
       if (!response.ok) throw new Error("Error while fetching friends");
       const { friends } = await response.json();

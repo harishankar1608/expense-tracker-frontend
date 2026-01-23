@@ -1,12 +1,160 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useChat } from "../../context/ChatContext";
 
-export default function ChatZone(props) {
-  const { chatData } = props;
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+export default function ChatZone() {
+  const {
+    messages: chatData,
+    setMessages,
+    setConversations,
+    selectedConversationId,
+    conversations,
+  } = useChat();
+  const { userId } = useAuth();
+
+  const chatViewRef = useRef(null);
+  const chatBubbleRef = useRef(new Map());
+
+  const [readMessageIds, setReadMessageIds] = useState(new Set());
+  const processedMessageIds = useRef(new Set());
+
+  const observerRef = useRef(null);
+
+  const [timeoutId, setTimeoutId] = useState(null);
+
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        console.log("PRocessing");
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          //accumulate the current set of message ids in the scroll
+          // console.log("ELEM<ENT INTERSECTING", entry.target);
+          if (processedMessageIds.current.has(entry.target.dataset.messageId))
+            return;
+
+          processedMessageIds.current.add(entry.target.dataset.messageId);
+
+          setReadMessageIds((prevValue) => {
+            const newSet = new Set(prevValue);
+            newSet.add(entry.target.dataset.messageId);
+            return newSet;
+          });
+
+          observerRef.current.unobserve(entry.target);
+        });
+      },
+      {
+        root: chatViewRef.current,
+        threshold: 1.0,
+      }
+    );
+  }, []);
+
+  const markAsRead = async (messageIds) => {
+    try {
+      const response = await fetch(`${backendUrl}/read-message`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", credentials: "include" },
+        body: JSON.stringify({ messageIds, userId }),
+      });
+
+      if (!response.ok) throw new Error("Error while creating read messages");
+    } catch (error) {
+      console.log(error, "Error");
+    }
+  };
+
+  const updateUnreadState = (messageIds) => {
+    const messageIdSet = new Set(messageIds);
+    let unReadCount = 0;
+
+    setMessages((prevValue) => {
+      const newValue = prevValue.map((message) => {
+        const updatedMessage = {
+          ...message,
+          unRead: messageIdSet.has(message.id) ? false : message.unRead,
+        };
+
+        if (updatedMessage.unRead && updatedMessage.senderId !== userId)
+          unReadCount++;
+        return updatedMessage;
+      });
+      return newValue;
+    });
+
+    setConversations((prevValue) =>
+      prevValue.map((conversation) => {
+        if (conversation.conversationId === selectedConversationId)
+          conversation.unReads = unReadCount;
+
+        return conversation;
+      })
+    );
+  };
+
+  useEffect(() => {
+    // console.log(readMessageIds);
+    if (readMessageIds.size === 0) return;
+
+    clearTimeout(timeoutId);
+
+    const timeout = setTimeout(() => {
+      // console.log(readMessageIds, "Read message ids");
+      const messageIds = Array.from(readMessageIds);
+      markAsRead(messageIds);
+      updateUnreadState(messageIds);
+      setReadMessageIds(new Set());
+    }, 500);
+
+    setTimeoutId(timeout);
+  }, [readMessageIds]);
+
+  console.log(conversations);
+
   return (
-    <div>
+    <div className="messages-chat-zone-container" ref={chatViewRef}>
       {chatData.map((chat) => (
-        <div className="">{chat.content}</div>
+        <div
+          // ref={chatViewRef}
+          ref={(element) => {
+            if (!observerRef.current) return;
+            // if (!element) return;
+            if (element) {
+              if (
+                chat.unRead &&
+                !chatBubbleRef.current.has(chat.id) &&
+                chat.senderId !== userId
+              ) {
+                chatBubbleRef.current.set(chat.id, element);
+                observerRef.current.observe(element);
+              }
+            } else {
+              if (chatBubbleRef.current.has(chat.id))
+                observerRef.current.unobserve(
+                  chatBubbleRef.current.get(chat.id)
+                );
+
+              chatBubbleRef.current.delete(chat.id);
+            }
+          }}
+          className={`messages-chat-bubble-container ${
+            chat.senderId === userId ? "sent" : ""
+          }`}
+          data-message-id={chat.id}
+          key={chat.id}
+        >
+          <span className="messages-chat-bubble-content">{chat.content}</span>
+          <div
+            className={`messages-chat-bubble-arrow ${
+              chat.senderId === userId ? "sent" : ""
+            }`}
+          ></div>
+        </div>
       ))}
     </div>
   );
 }
+// id, message_id, user_id, conversation_id, created_at, updated_at

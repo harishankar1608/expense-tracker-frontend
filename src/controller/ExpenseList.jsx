@@ -104,8 +104,6 @@ export default function ExpenseList() {
     // setTotalSelfExpense(selfExpense);
   }, [expenses]);
 
-  console.log(friendsData, "Friends Data");
-
   return (
     <div className="expense-list-container">
       <div className="expense-list-header">

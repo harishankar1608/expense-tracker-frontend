@@ -3,6 +3,7 @@ import Chat from "../component/Messages/Chat";
 import SearchFriendList from "../component/AddExpense/SearchFriendList";
 import { ConversationList } from "../component/Messages/ConversationList";
 import { useChat } from "../context/ChatContext";
+import { useAuth } from "../context/AuthContext";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -10,7 +11,6 @@ export default function Messages() {
   const [selectedFriend, setSelectedFriend] = useState(null);
   const {
     messages,
-    addMessage,
     selectedConversationId,
     setSelectedConversationId,
     friends,
@@ -19,9 +19,35 @@ export default function Messages() {
     setConversations,
   } = useChat();
 
-  const handleSelectFriend = (friend) => {
+  const { userId } = useAuth();
+
+  const startConversation = async (friendId) => {
+    try {
+      const response = await fetch(`${backendUrl}/start-conversation`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          credentials: "include",
+        },
+        body: JSON.stringify({
+          userId,
+          friendId,
+        }),
+      });
+      if (!response.ok) throw new Error("Error while creating conversation");
+
+      const { data } = await response.json();
+      return { status: true, data };
+    } catch (error) {
+      console.log("error", Error);
+      return { status: false, data: null };
+    }
+  };
+
+  const handleSelectFriend = async (friend) => {
+    //Find whether any existing conversation matches
     const existingConversation = conversations.find(
-      (conversation) => friend.user_id === conversation.participant_id
+      (conversation) => friend.conversation_id === conversation.conversationId
     );
 
     handleAddFriendData({
@@ -31,12 +57,20 @@ export default function Messages() {
     });
 
     if (existingConversation) {
-      setSelectedConversationId(existingConversation.conversation_id);
+      setSelectedConversationId(existingConversation.conversationId);
       setSelectedFriend(null);
     } else {
-      setSelectedFriend(friend.user_id);
-      setSelectedConversationId(null);
+      const { status, data } = await startConversation(friend.user_id);
+      if (status) {
+        setConversations((prevValue) => [data.conversation, ...prevValue]);
+        setSelectedConversationId(data.conversation.conversationId);
+      }
     }
+  };
+
+  const handleSelectConversation = (conversationId) => {
+    setSelectedFriend(null);
+    setSelectedConversationId(conversationId);
   };
 
   return (
@@ -48,16 +82,19 @@ export default function Messages() {
               handleSelectFriend={handleSelectFriend}
               buttonContent={"Chat"}
               placeholder="Search to start chatting"
+              includeConversation={true}
             />
           </div>
 
-          <ConversationList conversations={conversations} friends={friends} />
+          <ConversationList
+            conversations={conversations}
+            friends={friends}
+            selectedConversationId={selectedConversationId}
+            handleSelectConversation={handleSelectConversation}
+          />
         </div>
         {selectedFriend || selectedConversationId ? (
-          <Chat
-            friendId={selectedFriend}
-            conversationId={selectedConversationId}
-          />
+          <Chat friendId={selectedFriend} />
         ) : (
           <div>A very light message icon</div>
         )}

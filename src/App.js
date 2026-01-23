@@ -8,13 +8,11 @@ import Dashboard from "./controller/Dashboard";
 import Request from "./controller/Request";
 import ExpenseList from "./controller/ExpenseList";
 import AddNewExpense from "./component/AddExpense/AddNewExpense";
-import WebSocketComp from "./controller/WebSocket";
 import { AuthProvider } from "./context/AuthContext";
 import { ChatProvider } from "./context/ChatContext";
 
 const routes = createBrowserRouter([
   { path: "/", element: <ProtectedRoute component={<Dashboard />} /> },
-  { path: "/ws", element: <ProtectedRoute component={<WebSocketComp />} /> },
   {
     path: "/expenses",
     element: <ProtectedRoute component={<ExpenseList />} />,
