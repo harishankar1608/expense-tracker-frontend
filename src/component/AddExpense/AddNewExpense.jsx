@@ -45,7 +45,7 @@ export default function AddNewExpense({ type, handleExpenseChange }) {
 
     const isInValid = validateExpense(
       expenseData.expenseAmount,
-      expenseData.expenseType,
+      type,
       selectedFriend
     );
 
@@ -57,6 +57,7 @@ export default function AddNewExpense({ type, handleExpenseChange }) {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           expenseType: type === "self" ? "self" : expenseData.expenseType,
           expenseAmount:
@@ -75,9 +76,7 @@ export default function AddNewExpense({ type, handleExpenseChange }) {
         throw new Error("Error while adding expense");
 
       const data = await response.json();
-      console.log(data, "DAT AFTER ADDING EXPENSE");
       if (type === "friends") {
-        console.log(expenseData, "Expense Data IN FRIEND");
         handleExpenseChange(
           selectedFriend,
           expenseData.expenseType === "lended"
@@ -103,7 +102,6 @@ export default function AddNewExpense({ type, handleExpenseChange }) {
   };
 
   const handleExpenseDataChange = (value, type) => {
-    console.log(value, type, "Expense TYpe");
     setExpenseData((prevValue) => ({
       ...prevValue,
       [type]: value,

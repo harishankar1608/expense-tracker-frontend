@@ -20,7 +20,8 @@ export default function SearchUsers(props) {
     try {
       //pass the user id to neglect the current user to be found
       const response = await fetch(
-        `${backendUrl}/find-users?email=${email}&current_user=${userId}`
+        `${backendUrl}/find-users?email=${email}&current_user=${userId}`,
+        { method: "GET", credentials: "include" }
       );
 
       if (response.status !== 200) throw new Error("Error while finding users");

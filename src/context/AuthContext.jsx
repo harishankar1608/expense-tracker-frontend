@@ -25,7 +25,8 @@ export function AuthProvider({ children }) {
 
       const { user_id, name } = await response.json();
 
-      setUserData({ userId: user_id, username: name });
+      // setUserData({ userId: user_id, username: name });
+      updateLoginState(user_id, name);
     } catch (error) {
       setUserData(defaultUserData);
       console.log(error, "error");
@@ -33,12 +34,35 @@ export function AuthProvider({ children }) {
     setLoading(false);
   };
 
+  const updateLoginState = (userId, username) => {
+    setLoading(true);
+    setUserData({ userId, username });
+    setLoading(false);
+  };
+
+  const handleLogout = async () => {
+    const response = await fetch(`${backendUrl}/logout`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!response.ok) throw new Error("Error while logging out");
+
+    updateLoginState(null, null);
+  };
+
   useEffect(() => {
     authenticateUser();
   }, []);
   return (
     <AuthContext.Provider
-      value={{ userId: userData.userId, username: userData.username, loading }}
+      value={{
+        userId: userData.userId,
+        username: userData.username,
+        loading,
+        updateLoginState,
+        handleLogout,
+      }}
     >
       {children}
     </AuthContext.Provider>

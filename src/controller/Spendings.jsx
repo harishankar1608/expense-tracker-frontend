@@ -18,7 +18,8 @@ export default function Spendings() {
     try {
       const currentTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const response = await fetch(
-        `${backendUrl}/get-self-expenses?currentUser=${userId}&selectedMonth=${selectedMonth}&currentTimezone=${currentTimezone}`
+        `${backendUrl}/get-self-expenses?currentUser=${userId}&selectedMonth=${selectedMonth}&currentTimezone=${currentTimezone}`,
+        { method: "GET", credentials: "include" }
       );
       if (!response.ok) throw new Error("Error while getting user data");
 
@@ -30,7 +31,6 @@ export default function Spendings() {
   };
 
   const handleDateSelection = (event) => {
-    console.log(event.target.value, "MONTH");
     setSelectedMonth(event.target.value);
   };
 
@@ -66,7 +66,7 @@ export default function Spendings() {
     <div className="expense-list-container">
       <div className="expense-list-header-container">
         <div className="expense-list-header">
-          <span className="font-bold">Total Spendings</span>
+          <span className="font-bold">Total Savings</span>
           <span
             className={`${
               totalSelfExpense > 0 ? "font-green" : "font-red"
@@ -92,9 +92,6 @@ export default function Spendings() {
               <div className="expense-list-card-name">
                 <span className="text-left">{expense?.category || ""}</span>
               </div>
-              {/* <div className='expense-list-card-cell'>
-                  <span>{friendsData?.[userId]?.email || ''}</span>
-                </div> */}
               <div className="expense-list-card-amount">
                 <span
                   className={`${

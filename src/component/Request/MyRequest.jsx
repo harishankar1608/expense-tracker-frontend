@@ -12,9 +12,10 @@ export default function MyRequest() {
   const getRequestedList = async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `${backendUrl}/requested-list?currentUser=${userId}`
-      );
+      const response = await fetch(`${backendUrl}/requested-list`, {
+        method: "GET",
+        credentials: "include",
+      });
       if (response.status !== 200)
         throw new Error("Error while getting requested list");
       const data = await response.json();
@@ -37,6 +38,7 @@ export default function MyRequest() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           currentUser: userId,
           friendId,
@@ -95,7 +97,7 @@ export default function MyRequest() {
           </div>
         )}
 
-        <AddFriend />
+        {/* <AddFriend /> */}
       </div>
     </>
   );

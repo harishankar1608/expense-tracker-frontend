@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import AddFriend from "./AddFriend";
 import { useAuth } from "../../context/AuthContext";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -13,7 +12,8 @@ export default function FriendRequest() {
     setLoading(true);
     try {
       const response = await fetch(
-        `${backendUrl}/friend-requests?currentUser=${userId}`
+        `${backendUrl}/friend-requests?currentUser=${userId}`,
+        { method: "GET", credentials: "include" }
       );
       if (response.status !== 200)
         throw new Error("Error while getting requested list");
@@ -37,6 +37,7 @@ export default function FriendRequest() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           currentUser: userId,
           friendId,
@@ -66,6 +67,7 @@ export default function FriendRequest() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           currentUser: userId,
           friendId,
@@ -75,15 +77,12 @@ export default function FriendRequest() {
       if (!response.ok) throw new Error("Error while accepting friend request");
 
       const { request_exists } = await response.json();
-      console.log(request_exists);
 
       if (!request_exists) throw new Error("No request found");
 
       const updatedRequestList = receivedRequest.filter(
         (request) => request.user_id !== friendId
       );
-
-      console.log(updatedRequestList, "updatting");
 
       setReceivedRequest(updatedRequestList);
     } catch (error) {
@@ -133,7 +132,6 @@ export default function FriendRequest() {
           ))}
         </div>
       )}
-      <AddFriend />
     </div>
   );
 }

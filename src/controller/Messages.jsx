@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Chat from "../component/Messages/Chat";
 import SearchFriendList from "../component/AddExpense/SearchFriendList";
 import { ConversationList } from "../component/Messages/ConversationList";
@@ -10,7 +10,6 @@ const backendUrl = process.env.REACT_APP_BACKEND_URL;
 export default function Messages() {
   const [selectedFriend, setSelectedFriend] = useState(null);
   const {
-    messages,
     selectedConversationId,
     setSelectedConversationId,
     friends,
@@ -27,8 +26,8 @@ export default function Messages() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          credentials: "include",
         },
+        credentials: "include",
         body: JSON.stringify({
           userId,
           friendId,

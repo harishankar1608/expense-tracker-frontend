@@ -26,13 +26,12 @@ export default function SearchFriendList(props) {
 
   const findFriendsWithEmail = async (emailEntered) => {
     try {
-      console.log("DEBOUNSE CALLING SEARCH");
       const response = await fetch(
-        `${backendUrl}/find-friends?currentUser=${userId}&email=${emailEntered}&includeConversation=${includeConversation}`
+        `${backendUrl}/find-friends?currentUser=${userId}&email=${emailEntered}&includeConversation=${includeConversation}`,
+        { method: "GET", credentials: "include" }
       );
       if (!response.ok) throw new Error("Error while fetching friends");
       const { friends } = await response.json();
-      console.log(friends);
       setFriendsData(friends);
     } catch (error) {
       console.log(error, "error");

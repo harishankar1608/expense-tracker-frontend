@@ -6,12 +6,15 @@ const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export default function ChatZone() {
   const {
-    messages: chatData,
+    messages,
     setMessages,
     setConversations,
     selectedConversationId,
     conversations,
   } = useChat();
+
+  const chatData = messages?.[selectedConversationId] || [];
+
   const { userId } = useAuth();
 
   const chatViewRef = useRef(null);
@@ -27,11 +30,10 @@ export default function ChatZone() {
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
       (entries) => {
-        console.log("PRocessing");
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
           //accumulate the current set of message ids in the scroll
-          // console.log("ELEM<ENT INTERSECTING", entry.target);
+
           if (processedMessageIds.current.has(entry.target.dataset.messageId))
             return;
 
@@ -57,7 +59,8 @@ export default function ChatZone() {
     try {
       const response = await fetch(`${backendUrl}/read-message`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", credentials: "include" },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ messageIds, userId }),
       });
 
@@ -72,7 +75,10 @@ export default function ChatZone() {
     let unReadCount = 0;
 
     setMessages((prevValue) => {
-      const newValue = prevValue.map((message) => {
+      const newValue = { ...prevValue };
+      const conversationMessages = newValue[selectedConversationId];
+
+      const updatedMessages = conversationMessages.map((message) => {
         const updatedMessage = {
           ...message,
           unRead: messageIdSet.has(message.id) ? false : message.unRead,
@@ -82,6 +88,8 @@ export default function ChatZone() {
           unReadCount++;
         return updatedMessage;
       });
+
+      newValue[selectedConversationId] = updatedMessages;
       return newValue;
     });
 
@@ -96,13 +104,11 @@ export default function ChatZone() {
   };
 
   useEffect(() => {
-    // console.log(readMessageIds);
     if (readMessageIds.size === 0) return;
 
     clearTimeout(timeoutId);
 
     const timeout = setTimeout(() => {
-      // console.log(readMessageIds, "Read message ids");
       const messageIds = Array.from(readMessageIds);
       markAsRead(messageIds);
       updateUnreadState(messageIds);
@@ -111,8 +117,6 @@ export default function ChatZone() {
 
     setTimeoutId(timeout);
   }, [readMessageIds]);
-
-  console.log(conversations);
 
   return (
     <div className="messages-chat-zone-container" ref={chatViewRef}>

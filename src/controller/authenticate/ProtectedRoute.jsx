@@ -10,7 +10,7 @@ export default function ProtectedRoute({ component }) {
     if (loading) return;
 
     if (!userId) navigate("/login");
-  }, [loading]);
+  }, [loading, userId]);
 
   return !loading && userId && component;
 }

@@ -23,12 +23,16 @@ export default function AddFriend() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           userId: userId,
           friendId,
         }),
       });
       if (!response.ok) throw new Error("Error while sending friend request");
+      setTimeout(() => {
+        setPopupOpen(false);
+      }, 500);
     } catch (error) {
       console.log(error, "error");
     }
@@ -52,6 +56,12 @@ export default function AddFriend() {
                 buttonContent={"Send Request"}
               />
             </div>
+            <span
+              onClick={() => setPopupOpen(false)}
+              className="add-friend-popup-close"
+            >
+              x
+            </span>
           </div>
         </div>
       )}

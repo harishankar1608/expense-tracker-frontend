@@ -21,8 +21,8 @@ export default function Chat({ friendId }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          credentials: "include",
         },
+        credentials: "include",
         body: JSON.stringify({
           userId,
           conversationId: selectedConversationId,
@@ -35,7 +35,13 @@ export default function Chat({ friendId }) {
 
       const { data } = await response.json();
 
-      setMessages((prevValue) => [...prevValue, data]);
+      setMessages((prevValue) => ({
+        ...prevValue,
+        [selectedConversationId]: [
+          ...(prevValue?.[selectedConversationId] || []),
+          data,
+        ],
+      }));
       setMessageContent("");
     } catch (error) {
       console.log(error, "Error");
@@ -47,36 +53,31 @@ export default function Chat({ friendId }) {
     setMessageContent(event.target.value);
   };
 
-  const emptyMessage = () => {
-    setMessages([]);
-  };
-
-  const getMessagesForConversation = async () => {
+  const getMessagesForConversation = async (conversationId) => {
     try {
       const response = await fetch(
-        `${backendUrl}/messages?conversationId=${selectedConversationId}`,
+        `${backendUrl}/messages?conversationId=${conversationId}`,
         {
           method: "GET",
-          headers: {
-            credentials: "include",
-          },
+          credentials: "include",
         }
       );
       if (!response.ok)
         throw new Error("Error while getting messages for conversation");
 
       const { messages } = await response.json();
-      setMessages(messages);
+      setMessages((prevValue) => ({
+        ...prevValue,
+        [conversationId]: messages,
+      }));
     } catch (error) {
       console.log(error, "Error");
     }
   };
-  useEffect(() => {
-    getMessagesForConversation();
 
-    return () => {
-      emptyMessage();
-    };
+  useEffect(() => {
+    if (!messages?.[selectedConversationId])
+      getMessagesForConversation(selectedConversationId);
   }, [selectedConversationId]);
 
   return (

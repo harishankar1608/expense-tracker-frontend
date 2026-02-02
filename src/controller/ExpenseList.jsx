@@ -17,7 +17,8 @@ export default function ExpenseList() {
   const getExpenses = async () => {
     try {
       const response = await fetch(
-        `${backendUrl}/get-friend-expenses?currentUser=${userId}`
+        `${backendUrl}/get-friend-expenses?currentUser=${userId}`,
+        { method: "GET", credentials: "include" }
       );
       if (!response.ok) throw new Error("Error while getting user data");
 
@@ -65,7 +66,6 @@ export default function ExpenseList() {
   };
 
   const handleExpenseChange = (userData, expense) => {
-    console.log(totalFriendExpense, "TOTAL FRIENDS EXPENSE");
     //If no friends are ther in friends data add it to the object
     if (!friendsData[userData.user_id])
       setFriendsData((prevValue) => ({

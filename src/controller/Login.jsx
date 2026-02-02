@@ -1,17 +1,23 @@
 import { useState } from "react";
 import { emailValidation } from "../utils/validation";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export default function Login() {
   const router = useNavigate();
+  const { updateLoginState } = useAuth();
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
+
   const [errors, setErrors] = useState({ email: false, credentials: false });
+
   const formChangeHandler = (event) => {
+    setErrors({ email: false, credentials: false });
     setLoginData((prevValue) => ({
       ...prevValue,
       [event.target.name]: event.target.value,
@@ -19,9 +25,11 @@ export default function Login() {
   };
 
   const loginSubmitHandler = async () => {
+    if (loading) return;
+
+    setLoading(true);
     try {
       if (!emailValidation.test(loginData.email)) {
-        console.log("email not valid...");
         setErrors((prevValue) => ({ ...prevValue, email: true }));
         return;
       }
@@ -41,12 +49,17 @@ export default function Login() {
       if (response.status !== 200)
         throw new Error("Error while logging in! please try again");
 
+      const { userId, username } = await response.json();
+
+      updateLoginState(userId, username);
       router("/");
     } catch (error) {
       console.log(error, "Error message");
       window.alert(error.message);
     }
+    setLoading(false);
   };
+
   return (
     <>
       <div className="login-container">
@@ -64,6 +77,11 @@ export default function Login() {
               name="email"
               onChange={formChangeHandler}
             />
+            {errors.email && (
+              <div className="login-error">
+                Please enter a valid email address
+              </div>
+            )}
           </div>
           <div className="login-label-input-container">
             <label className="login-input-label">Password</label>
