@@ -4,7 +4,7 @@ import {
   nameValidation,
   passwordValidation,
 } from "../utils/validation";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -38,7 +38,7 @@ export default function Signup() {
       if (!emailValidation.test(signupData.email.value)) errors.email = true;
       if (!passwordValidation.test(signupData.password.value))
         errors.password = true;
-      console.log(errors, "error object");
+
       if (Object.values(errors).includes(true)) {
         setError(errors);
         return;
@@ -78,63 +78,71 @@ export default function Signup() {
     }));
   };
 
-  console.log(signupData, "signupdate");
   return (
-    <>
-      <div>This is the Sign up page</div>
-      <label htmlFor="signup-name">Name</label>
-      <input
-        id="signup-name"
-        type="text"
-        name="name"
-        value={signupData.name.value}
-        onChange={formChangeHandler}
-      />
-      <br />
-      {error.name && (
-        <div style={{ color: "red" }}>Please enter a valid name</div>
-      )}
-      <label htmlFor="signup-email">Email</label>
-      <input
-        id="signup-email"
-        type="text"
-        name="email"
-        value={signupData.email.value}
-        onChange={formChangeHandler}
-      />
-      <br />
-      {error.email && (
-        <div style={{ color: "red" }}>Please enter a valid email</div>
-      )}
-      <label htmlFor="signup-password">Password</label>
-      <input
-        id="signup-password"
-        type="text"
-        name="password"
-        value={signupData.password.value}
-        onChange={formChangeHandler}
-      />
-      <br />
-      {error.password && (
-        <div style={{ color: "red" }}>
-          Password should contain alteast 1 capital case and a number
-        </div>
-      )}
-      <label htmlFor="signup-confirm-password">Confirm Password</label>
-      <input
-        id="signup-confirm-password"
-        type="text"
-        name="confirmPassword"
-        value={signupData.confirmPassword.value}
-        onChange={formChangeHandler}
-      />
-      <br />
-      {error.confirmPassword && (
-        <div style={{ color: "red" }}>
-          Password and confirm password does not match
-        </div>
-      )}
-      <button onClick={createUser}>Create Account</button>
-    </>
+    <div className="signup-container">
+      <div className="signup-input-containers">
+        <label htmlFor="signup-name">Name</label>
+        <input
+          id="signup-name"
+          type="text"
+          name="name"
+          value={signupData.name.value}
+          onChange={formChangeHandler}
+        />
+        {error.name && (
+          <div className="signup-error">Please enter a valid name</div>
+        )}
+      </div>
+      <div className="signup-input-containers">
+        <label htmlFor="signup-email">Email</label>
+        <input
+          id="signup-email"
+          type="text"
+          name="email"
+          value={signupData.email.value}
+          onChange={formChangeHandler}
+        />
+        {error.email && (
+          <div className="signup-error">Please enter a valid email</div>
+        )}
+      </div>
+      <div className="signup-input-containers">
+        <label htmlFor="signup-password">Password</label>
+        <input
+          id="signup-password"
+          type="text"
+          name="password"
+          value={signupData.password.value}
+          onChange={formChangeHandler}
+        />
+
+        {error.password && (
+          <div className="signup-error">
+            Password should contain alteast 1 capital case and a number
+          </div>
+        )}
+      </div>
+      <div className="signup-input-containers">
+        <label htmlFor="signup-confirm-password">Confirm Password</label>
+        <input
+          id="signup-confirm-password"
+          type="text"
+          name="confirmPassword"
+          value={signupData.confirmPassword.value}
+          onChange={formChangeHandler}
+        />
+        {error.confirmPassword && (
+          <div className="signup-error">
+            Password and confirm password does not match
+          </div>
+        )}
+      </div>
+      <button className="signup-button" onClick={createUser}>
+        Create Account
+      </button>
+      <Link to="/login" className="signup-to-login-button">
+        Already have an account?
+      </Link>
+    </div>
   );
 }

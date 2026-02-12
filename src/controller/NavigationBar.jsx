@@ -1,82 +1,54 @@
-import { useContext } from "react";
-import { UserContext } from "./Context";
+import NavItem from "../component/Navigation/NavigationItem";
+import { useAuth } from "../context/AuthContext";
+import { useChat } from "../context/ChatContext";
 
 export const NavigationBar = (props) => {
-  const { currentTab, setCurrentTab } = props;
-  const userContext = useContext(UserContext);
-  const { username } = userContext;
+  const { currentTab, setCurrentTab, setLogoutPopup } = props;
+
+  const { username } = useAuth();
+  const { unreadMessages } = useChat();
+
   return (
     <div className="nav-bar-container">
       <div className="nav-welcome-user">
         <span>Hello {username.split(" ")?.[0] || ""}!</span>
       </div>
       <div className="nav-bar-icon-container font-bold">
+        <NavItem
+          selectedTab={currentTab === 1}
+          icon={"/expense-list-icon.svg"}
+          alt={"expense list icon"}
+          title={"Expenses"}
+          onClickHandler={() => setCurrentTab(1)}
+        />
+        <NavItem
+          selectedTab={currentTab === 2}
+          icon={"/expense-list-icon.svg"}
+          alt={"Spending icon"}
+          title={"Spendings"}
+          onClickHandler={() => setCurrentTab(2)}
+        />
+        <NavItem
+          selectedTab={currentTab === 3}
+          icon={"/friend-request-icon.svg"}
+          alt={"friend request icon"}
+          title={"Requests"}
+          onClickHandler={() => setCurrentTab(3)}
+        />
+        <NavItem
+          selectedTab={currentTab === 4}
+          icon={"/messages-icon.svg"}
+          alt={"messages icon"}
+          title={"Messages"}
+          onClickHandler={() => setCurrentTab(4)}
+          count={unreadMessages}
+        />
         <div
-          className={`nav-icon-content ${
-            currentTab === 1 ? "nav-bar-selected" : ""
-          }`}
-          onClick={() => setCurrentTab(1)}
+          className={`nav-icon-content`}
+          onClick={() => setLogoutPopup(true)}
         >
-          <img
-            className="nav-bar-icon"
-            src="expense-list-icon.svg"
-            alt="expense list icon"
-          />
-
-          <span>Expenses</span>
-        </div>
-
-        <div
-          className={`nav-icon-content ${
-            currentTab === 2 ? "nav-bar-selected" : ""
-          }`}
-          onClick={() => setCurrentTab(2)}
-        >
-          <img
-            className="nav-bar-icon"
-            src="expense-list-icon.svg"
-            alt="expense list icon"
-          />
-          <span>Spendings</span>
-        </div>
-        <div
-          className={`nav-icon-content ${
-            currentTab === 3 ? "nav-bar-selected" : ""
-          }`}
-          onClick={() => setCurrentTab(3)}
-        >
-          <img
-            className="nav-bar-icon"
-            src="friend-request-icon.svg"
-            alt="request icon"
-          />
-          <span>Requests</span>
-        </div>
-        <div
-          className={`nav-icon-content ${
-            currentTab === 4 ? "nav-bar-selected" : ""
-          }`}
-          onClick={() => setCurrentTab(4)}
-        >
-          <img
-            className="nav-bar-icon"
-            src="expense-list-icon.svg"
-            alt="expense list icon"
-          />
-          <span>Expenses</span>
-        </div>
-        <div
-          className={`nav-icon-content ${
-            currentTab === 5 ? "nav-bar-selected" : ""
-          }`}
-          onClick={() => setCurrentTab(5)}
-        >
-          <img
-            className="nav-bar-icon"
-            src="expense-list-icon.svg"
-            alt="expense list icon"
-          />
-          <span>Expenses</span>
+          <img className="nav-bar-icon" src="/logout.svg" alt="logout icon" />
+          <span>Logout</span>
         </div>
       </div>
     </div>

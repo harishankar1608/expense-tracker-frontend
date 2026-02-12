@@ -1,11 +1,11 @@
-import { useContext, useEffect, useState } from "react";
-import { UserContext } from "./Context";
+import { useEffect, useState } from "react";
 import AddNewExpense from "../component/AddExpense/AddNewExpense";
+import { useAuth } from "../context/AuthContext";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export default function ExpenseList() {
-  const userData = useContext(UserContext);
+  const { userId } = useAuth();
   const [loading, setLoading] = useState(false);
   const [info, setInfo] = useState("");
 
@@ -17,7 +17,8 @@ export default function ExpenseList() {
   const getExpenses = async () => {
     try {
       const response = await fetch(
-        `${backendUrl}/get-friend-expenses?currentUser=${userData.userId}`
+        `${backendUrl}/get-friend-expenses?currentUser=${userId}`,
+        { method: "GET", credentials: "include" }
       );
       if (!response.ok) throw new Error("Error while getting user data");
 
@@ -38,8 +39,6 @@ export default function ExpenseList() {
     }
   };
 
-  console.log(expenses, "expenses array");
-
   const convertExpenseData = (expenses) => {
     let selfExpense = 0;
     const friendsExpensesConverted = {}; //{'friend_user_id':[{expense1},expense2]}
@@ -48,7 +47,7 @@ export default function ExpenseList() {
         //self expense
         selfExpense += Number(expense.amount);
       } else {
-        if (expense.lender === userData.userId) {
+        if (expense.lender === userId) {
           //lended by current user
           const expenseAccumulator =
             friendsExpensesConverted?.[expense.borrower] || 0;
@@ -67,8 +66,6 @@ export default function ExpenseList() {
   };
 
   const handleExpenseChange = (userData, expense) => {
-    console.log(totalFriendExpense, "TOTAL FRIENDS EXPENSE");
-    console.log(userData, expense, "handleExpenseChange");
     //If no friends are ther in friends data add it to the object
     if (!friendsData[userData.user_id])
       setFriendsData((prevValue) => ({
@@ -92,11 +89,10 @@ export default function ExpenseList() {
   useEffect(() => {
     if (expenses.length === 0) return;
     const totalExpenses = expenses.reduce((total, expense) => {
-      if (expense.lender === userData.userId)
-        return total + Number(expense.amount);
-      else if (expense.borrower === userData.userId && !expense?.lender)
+      if (expense.lender === userId) return total + Number(expense.amount);
+      else if (expense.borrower === userId && !expense?.lender)
         return total - Number(expense.amount);
-      else if (expense.borrower === userData.userId)
+      else if (expense.borrower === userId)
         return total - Number(expense.amount);
       else return totalAmount;
     }, 0);
@@ -107,8 +103,6 @@ export default function ExpenseList() {
     setTotalFriendExpense(friendsExpensesConverted);
     // setTotalSelfExpense(selfExpense);
   }, [expenses]);
-
-  console.log(friendsData, "Friends Data");
 
   return (
     <div className="expense-list-container">
