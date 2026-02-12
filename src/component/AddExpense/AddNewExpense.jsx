@@ -108,6 +108,10 @@ export default function AddNewExpense({ type, handleExpenseChange }) {
     }));
   };
 
+  const handleSelectFriend = (friendData) => {
+    setSelectedFriend(friendData);
+  };
+
   const handlePopupOpen = () => {
     setPopupOpen(true);
   };
@@ -165,8 +169,9 @@ export default function AddNewExpense({ type, handleExpenseChange }) {
                       </div>
                     ) : (
                       <SearchFriendList
-                        setSelectedFriend={setSelectedFriend}
+                        handleSelectFriend={handleSelectFriend}
                         buttonContent={"Select"}
+                        placeholder={"Enter you friend email"}
                       />
                     )}
                   </div>

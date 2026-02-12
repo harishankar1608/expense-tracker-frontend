@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, createContext, useContext } from "react";
 import { useAuth } from "./AuthContext";
+import { addMessageToUnread } from "../utils/messages";
 
 const ChatContext = createContext("");
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -10,6 +11,8 @@ export function ChatProvider({ children }) {
   const messageSocket = useRef(null);
   const [unreadMessages, setUnreadMessages] = useState(0);
 
+  const [unreadConversations, setUnreadConversations] = useState({});
+
   const [conversations, setConversations] = useState([]);
 
   const [selectedConversationId, setSelectedConversationId] = useState(null);
@@ -19,6 +22,8 @@ export function ChatProvider({ children }) {
   const [friends, setFriends] = useState({});
 
   const [messages, setMessages] = useState({});
+
+  const existingMessagesRef = useRef(new Set());
 
   const handleAddFriendData = ({ user_id, name, email }) => {
     setFriends((prevValue) => ({
@@ -35,17 +40,23 @@ export function ChatProvider({ children }) {
       });
       if (!response.ok) throw new Error("Error while getting conversations");
 
-      const { conversations, friends } = await response.json();
+      const { conversations, friends, unReads } = await response.json();
 
       setConversations(conversations);
       setFriends(friends);
+
+      Object.keys(unReads).forEach((conversationId) => {
+        unReads[conversationId] = new Set(unReads?.[conversationId] ?? []);
+      });
+      setUnreadConversations(unReads);
     } catch (error) {
       console.log(error, "Error");
     }
   };
 
   const handleNewConversation = (eventData) => {
-    const { conversation, friend } = eventData;
+    const { conversation, friend, messageId } = eventData;
+    console.log(eventData);
 
     handleAddFriendData({
       user_id: friend.userId,
@@ -53,53 +64,36 @@ export function ChatProvider({ children }) {
       email: friend.email,
     });
 
+    addMessageToUnread(
+      setUnreadConversations,
+      conversation.conversationId,
+      messageId
+    );
+
     setConversations((prevValue) => [conversation, ...prevValue]);
   };
 
-  const getConversationUnreadCount = async (conversationId) => {
-    try {
-      const response = await fetch(
-        `${backendUrl}/conversation-unreads?conversationId=${conversationId}`,
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
-
-      if (!response.ok)
-        throw new Error("Error while getting conversation unreads");
-
-      const { unReads } = await response.json();
-
-      return unReads;
-    } catch (error) {
-      console.log(error, "Error");
-    }
-    return 0;
-  };
-
+  console.log(conversations, "conversations");
   const handleDeliverMessage = async (eventData) => {
     // conversationId, content, type, edited, isDeleted, senderId, clientMessageId, sentAt
 
-    let unReadCount = 0;
-    if (messages?.[eventData.conversationId]) {
+    addMessageToUnread(
+      setUnreadConversations,
+      eventData.conversationId,
+      eventData.id
+    );
+
+    if (existingMessagesRef.current.has(eventData.conversationId)) {
       //if the conversation is alread cached in state(already viewed by user)
-      unReadCount =
-        messages[eventData.conversationId].reduce((acc, message) => {
-          if (message.unRead) return (acc += 1);
-          return acc;
-        }, 0) + 1;
       setMessages((prevValue) => {
         let newMessages = { ...prevValue };
         newMessages[eventData.conversationId] = [
           ...newMessages[eventData.conversationId],
           eventData,
         ];
+
         return newMessages;
       });
-    } else {
-      //if the conversation is not already viewed by the user yet
-      unReadCount = await getConversationUnreadCount(eventData.conversationId);
     }
 
     setConversations((prevValue) => {
@@ -110,24 +104,18 @@ export function ChatProvider({ children }) {
             sender_id: eventData.senderId,
             type: eventData.type,
           };
-          conversation.unReads = unReadCount;
         }
 
         return conversation;
       });
       return updatedConversation;
     });
-
-    // setUnreadMessages((prevValue) => prevValue + 1);
   };
 
   useEffect(() => {
-    console.log(loading, userId, "LOADING AND USER ID");
     if (loading) return;
 
-    console.log("passed loading ");
     if (!userId) return;
-    console.log("passed userid");
 
     getAllConversation();
 
@@ -143,6 +131,8 @@ export function ChatProvider({ children }) {
         case "deliver_message":
           handleDeliverMessage(eventData.data);
           break;
+        default:
+          console.log("Unknown Event");
       }
     };
 
@@ -154,14 +144,13 @@ export function ChatProvider({ children }) {
   }, [loading, userId]);
 
   useEffect(() => {
-    //recalculate total unread count
-    const totalUnreads = conversations.reduce((total, conversation) => {
-      total += conversation?.unReads || 0;
-      return total;
-    }, 0);
-
+    const totalUnreads = Object.keys(unreadConversations).reduce(
+      (acc, conversationId) =>
+        (acc += unreadConversations[conversationId]?.size || 0),
+      0
+    );
     setUnreadMessages(totalUnreads);
-  }, [conversations]);
+  }, [unreadConversations]);
 
   useEffect(() => {
     activeConversationId.current = selectedConversationId;
@@ -171,8 +160,11 @@ export function ChatProvider({ children }) {
     <ChatContext.Provider
       value={{
         unreadMessages,
+        unreadConversations,
+        setUnreadConversations,
         messages,
         setMessages,
+        existingMessagesRef,
         friends,
         handleAddFriendData,
         selectedConversationId,

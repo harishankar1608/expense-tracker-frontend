@@ -7,10 +7,9 @@ const backendUrl = process.env.REACT_APP_BACKEND_URL;
 export default function ChatZone() {
   const {
     messages,
-    setMessages,
-    setConversations,
     selectedConversationId,
-    conversations,
+    unreadConversations,
+    setUnreadConversations,
   } = useChat();
 
   const chatData = messages?.[selectedConversationId] || [];
@@ -72,35 +71,15 @@ export default function ChatZone() {
 
   const updateUnreadState = (messageIds) => {
     const messageIdSet = new Set(messageIds);
-    let unReadCount = 0;
-
-    setMessages((prevValue) => {
-      const newValue = { ...prevValue };
-      const conversationMessages = newValue[selectedConversationId];
-
-      const updatedMessages = conversationMessages.map((message) => {
-        const updatedMessage = {
-          ...message,
-          unRead: messageIdSet.has(message.id) ? false : message.unRead,
-        };
-
-        if (updatedMessage.unRead && updatedMessage.senderId !== userId)
-          unReadCount++;
-        return updatedMessage;
+    setUnreadConversations((prevValue) => {
+      const newUnreads = { ...prevValue };
+      const unreads = newUnreads[selectedConversationId] || new Set();
+      messageIdSet.forEach((messageId) => {
+        if (unreads.has(messageId)) unreads.delete(messageId);
       });
-
-      newValue[selectedConversationId] = updatedMessages;
-      return newValue;
+      newUnreads[selectedConversationId] = unreads;
+      return newUnreads;
     });
-
-    setConversations((prevValue) =>
-      prevValue.map((conversation) => {
-        if (conversation.conversationId === selectedConversationId)
-          conversation.unReads = unReadCount;
-
-        return conversation;
-      })
-    );
   };
 
   useEffect(() => {
@@ -128,7 +107,7 @@ export default function ChatZone() {
             // if (!element) return;
             if (element) {
               if (
-                chat.unRead &&
+                unreadConversations?.[selectedConversationId]?.has(chat.id) &&
                 !chatBubbleRef.current.has(chat.id) &&
                 chat.senderId !== userId
               ) {

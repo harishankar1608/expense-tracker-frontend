@@ -1,10 +1,14 @@
+import { useChat } from "../../context/ChatContext";
+
 export function ConversationList(props) {
+  const { handleSelectConversation } = props;
   const {
     conversations,
     friends,
     selectedConversationId,
-    handleSelectConversation,
-  } = props;
+    unreadConversations,
+  } = useChat();
+
   return (
     <>
       <ul className="message-conversation-list-container">
@@ -22,9 +26,9 @@ export function ConversationList(props) {
           >
             <div>{friends?.[conversation?.participantId]?.name}</div>
             <div>{conversation?.lastMessage?.content}</div>
-            {conversation?.unReads > 0 && (
+            {unreadConversations?.[conversation.conversationId]?.size > 0 && (
               <div className="message-conversation-unreads">
-                {conversation?.unReads}
+                {unreadConversations?.[conversation.conversationId]?.size}
               </div>
             )}
           </li>

@@ -12,7 +12,6 @@ export default function Messages() {
   const {
     selectedConversationId,
     setSelectedConversationId,
-    friends,
     handleAddFriendData,
     conversations,
     setConversations,
@@ -86,9 +85,6 @@ export default function Messages() {
           </div>
 
           <ConversationList
-            conversations={conversations}
-            friends={friends}
-            selectedConversationId={selectedConversationId}
             handleSelectConversation={handleSelectConversation}
           />
         </div>

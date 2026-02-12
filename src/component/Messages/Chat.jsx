@@ -7,7 +7,8 @@ const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export default function Chat({ friendId }) {
   const { userId } = useAuth();
-  const { messages, setMessages, selectedConversationId } = useChat();
+  const { messages, setMessages, selectedConversationId, existingMessagesRef } =
+    useChat();
 
   const [loading, setLoading] = useState(false);
   const [messageContent, setMessageContent] = useState("");
@@ -70,6 +71,7 @@ export default function Chat({ friendId }) {
         ...prevValue,
         [conversationId]: messages,
       }));
+      existingMessagesRef.current.add(conversationId);
     } catch (error) {
       console.log(error, "Error");
     }

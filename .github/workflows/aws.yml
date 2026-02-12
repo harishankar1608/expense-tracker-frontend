@@ -5,12 +5,13 @@ on:
     branches: ["dev"]
 
 env:
+  AWS_ECS_ROLE: ${{secrets.AWS_ECS_ROLE}}
   AWS_REGION: ap-south-1
-  ECR_REPOSITORY: expense-tracker-react
-  ECS_SERVICE: expense_tracker_react-service-jh5obhq1
+  ECS_TASK_DEFINITION: ${{secrets.ECS_TASK_DEFINITION}}
+  ECR_REPOSITORY: expense-tracker-frontend
+  ECS_SERVICE: expense_tracker_frontend-sd
   ECS_CLUSTER: expense_tracker
-  ECS_TASK_DEFINITION: arn:aws:ecs:ap-south-1:532174505292:task-definition/expense_tracker_react
-  CONTAINER_NAME: expense_tracker_react_cont
+  CONTAINER_NAME: expense_tracker_frontend_cont
 
 permissions:
   id-token: write
@@ -29,7 +30,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::532174505292:role/GitHubExpenseTrackerFrontend
+          role-to-assume: ${{env.AWS_ECS_ROLE}}
           aws-region: ${{env.AWS_REGION}}
       - name: Additional steps
         run: aws sts get-caller-identity
