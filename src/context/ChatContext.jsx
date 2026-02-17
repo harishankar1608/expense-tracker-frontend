@@ -6,10 +6,6 @@ const ChatContext = createContext("");
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 const websocketUrl = `${process.env.REACT_APP_WEBSOCKET_PROTOCOL}://${process.env.REACT_APP_BACKEND_HOST}`;
 
-console.log(websocketUrl, "WEBSOCKET URL");
-console.log(process.env.REACT_APP_WEBSOCKET_PROTOCOL, "PROTOCOL");
-console.log(process.env.REACT_APP_BACKEND_HOST, "HOST");
-
 export function ChatProvider({ children }) {
   const { loading, userId } = useAuth();
   const messageSocket = useRef(null);
