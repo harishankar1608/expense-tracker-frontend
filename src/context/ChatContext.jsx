@@ -31,7 +31,7 @@ export function ChatProvider({ children }) {
       [user_id]: { name, email },
     }));
   };
-
+  //
   const getAllConversation = async () => {
     try {
       const response = await fetch(`${backendUrl}/conversations`, {
