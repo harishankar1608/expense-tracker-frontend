@@ -22,6 +22,9 @@ COPY package*.json ./
 ARG BACKEND_URL
 
 ENV REACT_APP_BACKEND_URL=$BACKEND_URL
+ENV REACT_APP_BACKEND_HOST=$BACKEND_HOST
+ENV REACT_APP_WEBSOCKET_PROTOCOL=$WEBSOCKET_PROTOCOL
+
 
 
 RUN npm ci
@@ -41,7 +44,7 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # copy | set ownership to ngnix for copied files | copy build file from src to dst
 COPY --chown=nginx:nginx --from=base /app/build /usr/share/nginx/html
 
-EXPOSE 3000
+EXPOSE 80
 
 ENTRYPOINT ["nginx", "-c", "/etc/nginx/nginx.conf"]
 
