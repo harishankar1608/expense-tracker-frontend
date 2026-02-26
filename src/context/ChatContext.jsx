@@ -4,7 +4,7 @@ import { addMessageToUnread } from "../utils/messages";
 
 const ChatContext = createContext("");
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
-const websocketUrl = `${process.env.REACT_APP_WEBSOCKET_PROTOCOL}://${process.env.REACT_APP_BACKEND_HOST}`;
+const websocketUrl = `${process.env.REACT_APP_WEBSOCKET_URL}`;
 
 export function ChatProvider({ children }) {
   const { loading, userId } = useAuth();
