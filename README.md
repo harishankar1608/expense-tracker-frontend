@@ -8,7 +8,7 @@ Built With
 
 Prerequisites:
 
-- Before launching the Expense tracket frontend application navigate to [Expense Tracker Backend][expense-tracker-backend], complete the prerequisites and launch the apps
+- Before launching the Expense tracker frontend application navigate to [Expense Tracker Backend][expense-tracker-backend], complete the prerequisites and launch the backend node.js app
 - Launch microservices [Expense Tracker Messaging And Caching Microservices][expense-tracker-microservices]
 - Update the backend url, websocket url and other envs in .env file(refer env.example)
 
