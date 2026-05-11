@@ -140,7 +140,7 @@ export default function ExpenseList() {
                 <div className="expense-list-card-continue">
                   <img
                     className="expense-list-right-arrow"
-                    src="/right-arrow-svgrepo-com.svg"
+                    src="/right-arrow.svg"
                     alt="Right arrow"
                   />
                 </div>

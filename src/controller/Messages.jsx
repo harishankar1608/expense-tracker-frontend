@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Chat from "../component/Messages/Chat";
 import SearchFriendList from "../component/AddExpense/SearchFriendList";
 import { ConversationList } from "../component/Messages/ConversationList";
@@ -8,7 +7,6 @@ import { useAuth } from "../context/AuthContext";
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 export default function Messages() {
-  const [selectedFriend, setSelectedFriend] = useState(null);
   const {
     selectedConversationId,
     setSelectedConversationId,
@@ -56,7 +54,6 @@ export default function Messages() {
 
     if (existingConversation) {
       setSelectedConversationId(existingConversation.conversationId);
-      setSelectedFriend(null);
     } else {
       const { status, data } = await startConversation(friend.user_id);
       if (status) {
@@ -67,14 +64,21 @@ export default function Messages() {
   };
 
   const handleSelectConversation = (conversationId) => {
-    setSelectedFriend(null);
     setSelectedConversationId(conversationId);
+  };
+
+  const handleUnselectConversation = () => {
+    setSelectedConversationId(null);
   };
 
   return (
     <>
       <div className="message-container">
-        <div className="messages-search-conversation-container">
+        <div
+          className={`messages-search-conversation-container ${
+            selectedConversationId ? "hidden" : ""
+          }`}
+        >
           <div className="messages-input-container">
             <SearchFriendList
               handleSelectFriend={handleSelectFriend}
@@ -88,8 +92,8 @@ export default function Messages() {
             handleSelectConversation={handleSelectConversation}
           />
         </div>
-        {selectedFriend || selectedConversationId ? (
-          <Chat friendId={selectedFriend} />
+        {selectedConversationId ? (
+          <Chat handleUnselectConversation={handleUnselectConversation} />
         ) : (
           <div>A very light message icon</div>
         )}

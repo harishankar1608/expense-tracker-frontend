@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
 import ChatZone from "./ChatZone";
-import { useAuth } from "../../context/AuthContext.jsx";
 import { useChat } from "../../context/ChatContext.jsx";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-export default function Chat({ friendId }) {
-  const { userId } = useAuth();
-  const { messages, setMessages, selectedConversationId, existingMessagesRef } =
-    useChat();
+export default function Chat({ handleUnselectConversation }) {
+  const {
+    messages,
+    setMessages,
+    friends,
+    selectedConversationId,
+    existingMessagesRef,
+    conversations,
+  } = useChat();
+
+  const [currentConversation, setCurrentConversation] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [messageContent, setMessageContent] = useState("");
@@ -25,10 +31,8 @@ export default function Chat({ friendId }) {
         },
         credentials: "include",
         body: JSON.stringify({
-          userId,
           conversationId: selectedConversationId,
           message: messageContent,
-          to: friendId,
         }),
       });
 
@@ -82,12 +86,34 @@ export default function Chat({ friendId }) {
       getMessagesForConversation(selectedConversationId);
   }, [selectedConversationId]);
 
+  const findCurrentConversation = () => {
+    const conversation = conversations.find(
+      (conv) => conv.conversationId === selectedConversationId
+    );
+    setCurrentConversation(conversation ?? null);
+  };
+
+  useEffect(() => {
+    findCurrentConversation();
+  }, [selectedConversationId]);
+
   return (
     <>
       <div className="messages-chat-container">
         {/* <div className="messages-chat-title-container">
           This is fully chat container
         </div> */}
+        <div className="messages-chat-recepient-container">
+          <img
+            src="/right-arrow.svg"
+            alt="back-icon"
+            className="messages-chat-back-button"
+            onClick={() => handleUnselectConversation()}
+          />
+          <span className="messages-chat-recepient-name">
+            {friends?.[currentConversation?.participantId]?.name || ""}
+          </span>
+        </div>
         <ChatZone />
         <div className="messages-chat-input-container">
           <input
